@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Calculator – Paint, Tiles, Flooring & More</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f3ef;
+    --surface: #ffffff;
+    --surface2: #f0ede8;
+    --border: #e2ded7;
+    --border2: #cdc8bf;
+    --text: #1a1917;
+    --text2: #6b6760;
+    --text3: #9e9a94;
+    --accent: #2d5a3d;
+    --accent-light: #e8f0eb;
+    --accent-text: #1e3d29;
+    --wa: #25D366;
+    --wa-dark: #1aad52;
+    --red: #c0392b;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+  .topbar {
+    background: var(--accent);
+    color: #fff;
+    padding: 16px 20px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .topbar p { font-size: 12px; opacity: .7; margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .container { max-width: 540px; margin: 0 auto; padding: 16px 14px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    margin-bottom: 14px;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; font-weight: 500; }
+  .field input, .field select {
+    width: 100%; height: 40px; padding: 0 11px;
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface2); color: var(--text); outline: none;
+    transition: border-color .15s, background .15s;
+  }
+  .field input:focus, .field select:focus {
+    border-color: var(--accent); background: #fff;
+  }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab {
+    padding: 6px 13px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--border); border-radius: 20px;
+    cursor: pointer; background: var(--surface2); color: var(--text2);
+    transition: all .15s; font-family: 'DM Sans', sans-serif;
+  }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tab:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+  .material-section { display: none; }
+  .material-section.active { display: block; }
+  .waste-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .waste-row label { font-size: 12px; color: var(--text2); font-weight: 500; white-space: nowrap; min-width: 60px; }
+  .waste-row input[type=range] {
+    flex: 1; -webkit-appearance: none; height: 4px;
+    background: var(--border2); border-radius: 2px; outline: none;
+  }
+  .waste-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+    border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+  .waste-row span { font-size: 13px; font-weight: 600; color: var(--accent); min-width: 34px; text-align: right; font-family: 'DM Mono', monospace; }
+  .tip { font-size: 11px; color: var(--text3); margin-top: 8px; line-height: 1.5; }
+  .openings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .openings-header span { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; }
+  .add-btn {
+    font-size: 12px; font-weight: 500; padding: 5px 12px;
+    border: 1px solid var(--border2); border-radius: 20px;
+    cursor: pointer; background: var(--surface2); color: var(--text2);
+    font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 4px;
+    transition: all .15s;
+  }
+  .add-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
+  .opening-row {
+    display: grid; grid-template-columns: 72px 1fr 1fr 56px 36px;
+    gap: 7px; align-items: end; margin-bottom: 8px;
+  }
+  .opening-row label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 3px; font-weight: 500; }
+  .opening-row input, .opening-row select {
+    width: 100%; height: 36px; padding: 0 8px; font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--surface2); color: var(--text); outline: none;
+  }
+  .del-btn {
+    width: 36px; height: 36px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); cursor: pointer; background: var(--surface2);
+    color: var(--text3); font-size: 16px; display: flex;
+    align-items: center; justify-content: center; align-self: flex-end;
+    transition: all .15s; font-family: 'DM Sans', sans-serif;
+  }
+  .del-btn:hover { background: #ffeaea; border-color: #f0b0b0; color: var(--red); }
+  .area-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .pill {
+    font-size: 11px; padding: 4px 10px; background: var(--accent-light);
+    border-radius: 20px; color: var(--accent-text); font-weight: 500;
+  }
+  .pill strong { font-weight: 600; }
+  .calc-btn {
+    width: 100%; padding: 14px; font-size: 16px; font-weight: 600;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: var(--radius); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    letter-spacing: -0.01em; transition: opacity .15s, transform .1s;
+  }
+  .calc-btn:hover { opacity: .9; }
+  .calc-btn:active { transform: scale(.99); }
+  .results { display: none; margin-top: 12px; }
+  .results.show { display: block; }
+  .res-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 14px; }
+  .rc {
+    background: var(--surface2); border-radius: var(--radius-sm);
+    padding: 13px 14px; border: 1px solid var(--border);
+  }
+  .rc .rl { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-weight: 500; }
+  .rc .rv { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; letter-spacing: -0.02em; }
+  .rc .ru { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .rc .rn { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  .waste-note { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; }
+  .action-row { display: flex; gap: 9px; }
+  .action-btn {
+    flex: 1; padding: 11px 10px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; background: var(--surface); color: var(--text);
+    font-family: 'DM Sans', sans-serif; display: flex; align-items: center;
+    justify-content: center; gap: 6px; transition: all .15s;
+  }
+  .action-btn:hover { background: var(--surface2); border-color: var(--border2); }
+  .action-btn.wa { background: var(--wa); border-color: var(--wa); color: #fff; }
+  .action-btn.wa:hover { background: var(--wa-dark); border-color: var(--wa-dark); }
+  .action-btn.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
+  .footer {
+    text-align: center; font-size: 11px; color: var(--text3);
+    margin-top: 28px; padding: 0 20px; line-height: 1.6;
+  }
+  @media (max-width: 400px) {
+    .row3 { grid-template-columns: 1fr 1fr; }
+    .opening-row { grid-template-columns: 64px 1fr 1fr 44px; }
+    .opening-row .del-btn-wrap { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Material Calculator</h1>
+  <p>Paint · Tiles · Flooring · Wallpaper · Ceiling</p>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">Room dimensions</div>
+    <div class="row2">
+      <div class="field"><label>Length</label><input type="number" id="length" placeholder="e.g. 12" min="0" step="0.1" oninput="updateAreas()"></div>
+      <div class="field"><label>Width</label><input type="number" id="width" placeholder="e.g. 10" min="0" step="0.1" oninput="updateAreas()"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Height</label><input type="number" id="height" placeholder="e.g. 9" min="0" step="0.1" oninput="updateAreas()"></div>
+      <div class="field"><label>Unit</label>
+        <select id="unit" onchange="updateAreas()">
+          <option value="ft">Feet (ft)</option>
+          <option value="m">Metres (m)</option>
+        </select>
+      </div>
+    </div>
+    <div id="area-pills" class="area-pills" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <div class="openings-header">
+      <span>Doors &amp; windows</span>
+      <button class="add-btn" onclick="addOpening()">+ Add opening</button>
+    </div>
+    <div id="openings-list"></div>
+    <p class="tip">Areas are automatically deducted from wall calculations.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Select material</div>
+    <div class="tabs">
+      <div class="tab active" data-mat="paint">Paint</div>
+      <div class="tab" data-mat="floortile">Floor tiles</div>
+      <div class="tab" data-mat="walltile">Wall tiles</div>
+      <div class="tab" data-mat="wallpaper">Wallpaper</div>
+      <div class="tab" data-mat="flooring">Wood/laminate</div>
+      <div class="tab" data-mat="ceiling">Ceiling</div>
+    </div>
+
+    <!-- Paint -->
+    <div id="mat-paint" class="material-section active">
+      <div class="row2">
+        <div class="field"><label>Coverage / litre (sq ft)</label><input type="number" id="paint-cov" value="120" min="1"></div>
+        <div class="field"><label>Number of coats</label>
+          <select id="paint-coats">
+            <option value="1">1 coat</option>
+            <option value="2" selected>2 coats</option>
+            <option value="3">3 coats</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:4px"><label>Paint which surface?</label>
+        <select id="paint-area">
+          <option value="walls">Walls only</option>
+          <option value="ceiling">Ceiling only</option>
+          <option value="both">Walls + ceiling</option>
+        </select>
+      </div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="paint-waste" min="0" max="25" value="10" step="1" oninput="document.getElementById('paint-waste-val').textContent=this.value+'%'"><span id="paint-waste-val">10%</span></div>
+      <p class="tip">Standard coverage ≈ 120 sq ft/litre. Increase for dark colours or rough walls.</p>
+    </div>
+
+    <!-- Floor tiles -->
+    <div id="mat-floortile" class="material-section">
+      <div class="row3">
+        <div class="field"><label>Tile length (in)</label><input type="number" id="ft-tl" value="24" min="1"></div>
+        <div class="field"><label>Tile width (in)</label><input type="number" id="ft-tw" value="24" min="1"></div>
+        <div class="field"><label>Tiles/box</label><input type="number" id="ft-box" value="4" min="1"></div>
+      </div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="ft-waste" min="5" max="25" value="10" step="1" oninput="document.getElementById('ft-waste-val').textContent=this.value+'%'"><span id="ft-waste-val">10%</span></div>
+      <p class="tip">Add 15–20% extra for diagonal or pattern laying.</p>
+    </div>
+
+    <!-- Wall tiles -->
+    <div id="mat-walltile" class="material-section">
+      <div class="row3">
+        <div class="field"><label>Tile length (in)</label><input type="number" id="wt-tl" value="12" min="1"></div>
+        <div class="field"><label>Tile width (in)</label><input type="number" id="wt-tw" value="12" min="1"></div>
+        <div class="field"><label>Tiles/box</label><input type="number" id="wt-box" value="6" min="1"></div>
+      </div>
+      <div class="row2" style="margin-top:2px">
+        <div class="field"><label>Tile up to height (ft)</label><input type="number" id="wt-ht" value="4" min="0.5" step="0.5"></div>
+      </div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="wt-waste" min="5" max="25" value="12" step="1" oninput="document.getElementById('wt-waste-val').textContent=this.value+'%'"><span id="wt-waste-val">12%</span></div>
+      <p class="tip">Door and window areas are deducted automatically.</p>
+    </div>
+
+    <!-- Wallpaper -->
+    <div id="mat-wallpaper" class="material-section">
+      <div class="row3">
+        <div class="field"><label>Roll width (in)</label><input type="number" id="wp-w" value="21" min="1"></div>
+        <div class="field"><label>Roll length (ft)</label><input type="number" id="wp-l" value="33" min="1"></div>
+        <div class="field"><label>Pattern repeat (in)</label><input type="number" id="wp-rep" value="0" min="0"></div>
+      </div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="wp-waste" min="5" max="30" value="12" step="1" oninput="document.getElementById('wp-waste-val').textContent=this.value+'%'"><span id="wp-waste-val">12%</span></div>
+      <p class="tip">Standard rolls are 21" × 33 ft. Enter 0 for no pattern repeat.</p>
+    </div>
+
+    <!-- Wood/laminate -->
+    <div id="mat-flooring" class="material-section">
+      <div class="row3">
+        <div class="field"><label>Board width (in)</label><input type="number" id="fl-w" value="5" min="1" step="0.5"></div>
+        <div class="field"><label>Board length (ft)</label><input type="number" id="fl-l" value="4" min="1" step="0.5"></div>
+        <div class="field"><label>Boards/pack</label><input type="number" id="fl-box" value="8" min="1"></div>
+      </div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="fl-waste" min="5" max="20" value="10" step="1" oninput="document.getElementById('fl-waste-val').textContent=this.value+'%'"><span id="fl-waste-val">10%</span></div>
+      <p class="tip">Add 5% for diagonal or herringbone layouts.</p>
+    </div>
+
+    <!-- Ceiling -->
+    <div id="mat-ceiling" class="material-section">
+      <div class="row2">
+        <div class="field"><label>Ceiling type</label>
+          <select id="ce-type" onchange="toggleCeiling()">
+            <option value="paint">Paint only</option>
+            <option value="gyp">Gypsum board</option>
+            <option value="tile">Ceiling tiles</option>
+          </select>
+        </div>
+        <div class="field" id="ce-cov-wrap"><label>Coverage / litre (sq ft)</label><input type="number" id="ce-cov" value="120" min="1"></div>
+      </div>
+      <div class="row2" id="ce-tile-row" style="display:none">
+        <div class="field"><label>Tile size</label>
+          <select id="ce-tile-sz">
+            <option value="24x24">24 × 24 in</option>
+            <option value="12x12">12 × 12 in</option>
+            <option value="48x24">48 × 24 in</option>
+          </select>
+        </div>
+        <div class="field"><label>Tiles/box</label><input type="number" id="ce-tile-box" value="10" min="1"></div>
+      </div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="ce-waste" min="5" max="20" value="10" step="1" oninput="document.getElementById('ce-waste-val').textContent=this.value+'%'"><span id="ce-waste-val">10%</span></div>
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">Calculate quantity →</button>
+
+  <div class="results card" id="results">
+    <div class="res-title" id="res-title">Results</div>
+    <div class="result-grid" id="result-grid"></div>
+    <div class="divider"></div>
+    <p class="waste-note" id="waste-info"></p>
+    <div class="action-row">
+      <button class="action-btn" id="copy-btn" onclick="copyResults()">&#x2398; Copy</button>
+      <button class="action-btn wa" onclick="shareWA()">&#x2714; WhatsApp</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    Material Calculator &nbsp;·&nbsp; Works offline &nbsp;·&nbsp; Free to use<br>
+    Quantities are estimates. Always verify before purchasing.
+  </div>
+
+</div>
+
+<script>
+var openingCount=0;
+var lastResults={title:'',lines:[],note:''};
+
+function $(id){return document.getElementById(id);}
+
+function toggleCeiling(){
+  var v=$('ce-type').value;
+  $('ce-cov-wrap').style.display=v==='paint'?'block':'none';
+  $('ce-tile-row').style.display=v==='tile'?'grid':'none';
+}
+
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('.material-section').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    $('mat-'+t.dataset.mat).classList.add('active');
+  };
+});
+
+function addOpening(){
+  openingCount++;
+  var id=openingCount;
+  var div=document.createElement('div');
+  div.className='opening-row';
+  div.id='op-'+id;
+  div.innerHTML=
+    '<div><label>Type</label><select id="op-type-'+id+'"><option value="door">Door</option><option value="window">Window</option></select></div>'+
+    '<div><label>Width</label><input type="number" id="op-w-'+id+'" value="3" min="0.1" step="0.1" oninput="updateAreas()"></div>'+
+    '<div><label>Height</label><input type="number" id="op-h-'+id+'" value="7" min="0.1" step="0.1" oninput="updateAreas()"></div>'+
+    '<div><label>Qty</label><input type="number" id="op-q-'+id+'" value="1" min="1" oninput="updateAreas()"></div>'+
+    '<button class="del-btn" onclick="removeOpening('+id+')" aria-label="Remove">&#x2715;</button>';
+  $('openings-list').appendChild(div);
+  updateAreas();
+}
+
+function removeOpening(id){
+  var el=$('op-'+id);
+  if(el)el.remove();
+  updateAreas();
+}
+
+function getOpeningsArea(){
+  var total=0;
+  document.querySelectorAll('[id^="op-w-"]').forEach(function(el){
+    var id=el.id.replace('op-w-','');
+    var w=parseFloat(el.value)||0;
+    var h=parseFloat($('op-h-'+id).value)||0;
+    var q=parseFloat($('op-q-'+id).value)||1;
+    total+=w*h*q;
+  });
+  return total;
+}
+
+function toSqFt(val,unit){return unit==='m'?val*10.764:val;}
+
+function updateAreas(){
+  var L=parseFloat($('length').value)||0;
+  var W=parseFloat($('width').value)||0;
+  var H=parseFloat($('height').value)||0;
+  var pills=$('area-pills');
+  if(!L||!W||!H){pills.style.display='none';return;}
+  var u=$('unit').value;
+  var floor=+(L*W).toFixed(1);
+  var wallsGross=+(2*(L+W)*H).toFixed(1);
+  var ded=+getOpeningsArea().toFixed(1);
+  var wallsNet=+(wallsGross-ded).toFixed(1);
+  pills.style.display='flex';
+  pills.innerHTML=
+    '<span class="pill">Floor <strong>'+floor+' sq '+u+'</strong></span>'+
+    '<span class="pill">Walls <strong>'+wallsGross+' sq '+u+'</strong></span>'+
+    (ded>0?'<span class="pill">Deductions <strong>&#x2212;'+ded+' sq '+u+'</strong></span><span class="pill">Net walls <strong>'+wallsNet+' sq '+u+'</strong></span>':'');
+}
+
+function card(label,value,unit,note){
+  return '<div class="rc"><div class="rl">'+label+'</div><div class="rv">'+value+'</div><div class="ru">'+unit+'</div>'+(note?'<div class="rn">'+note+'</div>':'')+'</div>';
+}
+
+function calculate(){
+  var L=parseFloat($('length').value);
+  var W=parseFloat($('width').value);
+  var H=parseFloat($('height').value);
+  if(!L||!W||!H){alert('Please enter all room dimensions first.');return;}
+  var unit=$('unit').value;
+  var floor=toSqFt(L*W,unit);
+  var wallsGross=toSqFt(2*(L+W)*H,unit);
+  var ded=toSqFt(getOpeningsArea(),unit);
+  var walls=Math.max(wallsGross-ded,0);
+  var ceil=floor;
+  var mat=document.querySelector('.tab.active').dataset.mat;
+  var html='';var note='';var lines=[];
+
+  if(mat==='paint'){
+    var cov=parseFloat($('paint-cov').value)||120;
+    var coats=parseInt($('paint-coats').value)||2;
+    var pw=parseInt($('paint-waste').value)/100;
+    var area=$('paint-area').value==='walls'?walls:$('paint-area').value==='ceiling'?ceil:walls+ceil;
+    var netL=(area*coats)/cov;
+    var total=+(netL*(1+pw)).toFixed(1);
+    var b4=Math.ceil(total/4),b10=Math.ceil(total/10);
+    html=card('Litres needed',total,'litres','after wastage');
+    html+=card('4 L tins',b4,'tins','minimum to buy');
+    html+=card('10 L tins',b10,'tins','alternative');
+    html+=card('Area painted',Math.round(area),'sq ft','net surface area');
+    note='Includes '+$('paint-waste').value+'% wastage. Net: '+netL.toFixed(1)+' L for '+coats+' coat'+(coats>1?'s':'')+'. Openings deducted: '+Math.round(ded)+' sq ft.';
+    lines=['Litres needed: '+total+' L','4 L tins: '+b4,'10 L tins: '+b10,'Area painted: '+Math.round(area)+' sq ft'];
+  }
+  else if(mat==='floortile'){
+    var tl=parseFloat($('ft-tl').value)||24;
+    var tw=parseFloat($('ft-tw').value)||24;
+    var bx=parseInt($('ft-box').value)||4;
+    var fw=parseInt($('ft-waste').value)/100;
+    var tileSqFt=(tl/12)*(tw/12);
+    var tiles=Math.ceil(floor*(1+fw)/tileSqFt);
+    var boxes=Math.ceil(tiles/bx);
+    html=card('Tiles needed',tiles,'tiles','after wastage');
+    html+=card('Boxes needed',boxes,'boxes',bx+' tiles per box');
+    html+=card('Floor area',Math.round(floor),'sq ft','net');
+    html+=card('Wastage added',Math.round(fw*100),'%','+'+Math.round(floor*fw)+' sq ft extra');
+    note=fw*100+'% wastage. Tile: '+tl+'"×'+tw+'". Floor: '+Math.round(floor)+' sq ft.';
+    lines=['Tiles needed: '+tiles,'Boxes: '+boxes+' ('+bx+' per box)','Floor area: '+Math.round(floor)+' sq ft'];
+  }
+  else if(mat==='walltile'){
+    var tl=parseFloat($('wt-tl').value)||12;
+    var tw=parseFloat($('wt-tw').value)||12;
+    var bx=parseInt($('wt-box').value)||6;
+    var wht=parseFloat($('wt-ht').value)||H;
+    var ww=parseInt($('wt-waste').value)/100;
+    var tileArea=Math.max(toSqFt(2*(L+W)*Math.min(wht,H),unit)-ded,0);
+    var tileSqFt=(tl/12)*(tw/12);
+    var tiles=Math.ceil(tileArea*(1+ww)/tileSqFt);
+    var boxes=Math.ceil(tiles/bx);
+    html=card('Tiles needed',tiles,'tiles','after wastage');
+    html+=card('Boxes needed',boxes,'boxes',bx+' tiles per box');
+    html+=card('Wall area tiled',Math.round(tileArea),'sq ft','up to '+wht+' ft height');
+    html+=card('Wastage added',Math.round(ww*100),'%','openings deducted');
+    note=ww*100+'% wastage. Tile: '+tl+'"×'+tw+'". Tiled to '+wht+' ft. Openings deducted.';
+    lines=['Tiles needed: '+tiles,'Boxes: '+boxes+' ('+bx+' per box)','Wall area: '+Math.round(tileArea)+' sq ft'];
+  }
+  else if(mat==='wallpaper'){
+    var rpw=parseFloat($('wp-w').value)||21;
+    var rpl=parseFloat($('wp-l').value)||33;
+    var rep=parseFloat($('wp-rep').value)||0;
+    var ww=parseInt($('wp-waste').value)/100;
+    var effectiveL=rep>0?rpl-((H*12)%rep||rep):rpl;
+    var rollCov=(rpw/12)*effectiveL;
+    var rolls=Math.ceil(walls*(1+ww)/rollCov);
+    html=card('Rolls needed',rolls,'rolls','after wastage');
+    html+=card('Wall area',Math.round(walls),'sq ft','openings deducted');
+    html+=card('Roll coverage',Math.round(rollCov),'sq ft/roll','usable');
+    html+=card('Wastage added',Math.round(ww*100),'%','included');
+    note=ww*100+'% wastage. Roll: '+rpw+'"×'+rpl+' ft.'+(rep>0?' Pattern repeat: '+rep+'"':'');
+    lines=['Rolls needed: '+rolls,'Wall area: '+Math.round(walls)+' sq ft','Roll coverage: '+Math.round(rollCov)+' sq ft'];
+  }
+  else if(mat==='flooring'){
+    var bw=parseFloat($('fl-w').value)||5;
+    var bl=parseFloat($('fl-l').value)||4;
+    var bx=parseInt($('fl-box').value)||8;
+    var fw=parseInt($('fl-waste').value)/100;
+    var boardSqFt=(bw/12)*bl;
+    var boards=Math.ceil(floor*(1+fw)/boardSqFt);
+    var packs=Math.ceil(boards/bx);
+    html=card('Boards needed',boards,'boards','after wastage');
+    html+=card('Packs needed',packs,'packs',bx+' boards per pack');
+    html+=card('Floor area',Math.round(floor),'sq ft','net');
+    html+=card('Wastage added',Math.round(fw*100),'%','+'+Math.round(floor*fw)+' sq ft');
+    note=fw*100+'% wastage. Board: '+bw+'"×'+bl+' ft.';
+    lines=['Boards needed: '+boards,'Packs: '+packs+' ('+bx+' per pack)','Floor area: '+Math.round(floor)+' sq ft'];
+  }
+  else if(mat==='ceiling'){
+    var ct=$('ce-type').value;
+    var cw=parseInt($('ce-waste').value)/100;
+    if(ct==='paint'){
+      var cov=parseFloat($('ce-cov').value)||120;
+      var netL=(ceil*2)/cov;
+      var total=+(netL*(1+cw)).toFixed(1);
+      html=card('Litres needed',total,'litres','after wastage');
+      html+=card('4 L tins',Math.ceil(total/4),'tins','minimum');
+      html+=card('Ceiling area',Math.round(ceil),'sq ft','');
+      html+=card('Wastage added',Math.round(cw*100),'%','');
+      note=cw*100+'% wastage. Net: '+netL.toFixed(1)+' L for 2 coats.';
+      lines=['Litres: '+total+' L','4 L tins: '+Math.ceil(total/4),'Ceiling: '+Math.round(ceil)+' sq ft'];
+    } else if(ct==='gyp'){
+      var sheets=Math.ceil(ceil*(1+cw)/32);
+      html=card('Gypsum boards',sheets,'sheets','4×8 ft each');
+      html+=card('Ceiling area',Math.round(ceil),'sq ft','');
+      html+=card('Wastage added',Math.round(cw*100),'%','');
+      note=cw*100+'% wastage. Standard 4×8 ft gypsum boards.';
+      lines=['Gypsum boards: '+sheets,'Ceiling: '+Math.round(ceil)+' sq ft'];
+    } else {
+      var sz=$('ce-tile-sz').value.split('x');
+      var tileSqFt=(parseInt(sz[0])/12)*(parseInt(sz[1])/12);
+      var tbx=parseInt($('ce-tile-box').value)||10;
+      var tiles=Math.ceil(ceil*(1+cw)/tileSqFt);
+      var boxes=Math.ceil(tiles/tbx);
+      html=card('Tiles needed',tiles,'tiles','after wastage');
+      html+=card('Boxes needed',boxes,'boxes',tbx+' per box');
+      html+=card('Ceiling area',Math.round(ceil),'sq ft','');
+      note=cw*100+'% wastage. Tile: '+$('ce-tile-sz').value+' in.';
+      lines=['Tiles: '+tiles,'Boxes: '+boxes,'Ceiling: '+Math.round(ceil)+' sq ft'];
+    }
+  }
+
+  var labels={paint:'Paint estimate',floortile:'Floor tile estimate',walltile:'Wall tile estimate',wallpaper:'Wallpaper estimate',flooring:'Wood / laminate estimate',ceiling:'Ceiling estimate'};
+  $('res-title').textContent=labels[mat];
+  $('result-grid').innerHTML=html;
+  $('waste-info').textContent=note;
+  lastResults={title:labels[mat],lines:lines,note:note};
+  var res=$('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function copyResults(){
+  if(!lastResults.lines.length){alert('Please calculate first.');return;}
+  var text=lastResults.title+'\n'+'—'.repeat(30)+'\n'+lastResults.lines.join('\n')+'\n\nNote: '+lastResults.note+'\n\nCalculated with Material Calculator';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){
+      var btn=$('copy-btn');
+      btn.classList.add('copied');
+      btn.textContent='✓ Copied!';
+      setTimeout(function(){btn.classList.remove('copied');btn.innerHTML='&#x2398; Copy';},2200);
+    });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    var btn=$('copy-btn');btn.textContent='✓ Copied!';
+    setTimeout(function(){btn.innerHTML='&#x2398; Copy';},2200);
+  }
+}
+
+function shareWA(){
+  if(!lastResults.lines.length){alert('Please calculate first.');return;}
+  var text='*'+lastResults.title+'*\n'+lastResults.lines.join('\n')+'\n\n_'+lastResults.note+'_\n\nCalculated with Material Calculator';
+  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
+
+updateAreas();
+</script>
+</body>
+</html>
