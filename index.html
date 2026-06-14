@@ -3,582 +3,405 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Material Calculator – Paint, Tiles, Flooring & More</title>
+<title>Measuro — Material Calculator</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f5f3ef;
-    --surface: #ffffff;
-    --surface2: #f0ede8;
-    --border: #e2ded7;
-    --border2: #cdc8bf;
-    --text: #1a1917;
-    --text2: #6b6760;
-    --text3: #9e9a94;
-    --accent: #2d5a3d;
-    --accent-light: #e8f0eb;
-    --accent-text: #1e3d29;
-    --wa: #25D366;
-    --wa-dark: #1aad52;
-    --red: #c0392b;
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 0 0 60px;
-  }
-  .topbar {
-    background: var(--accent);
-    color: #fff;
-    padding: 16px 20px 14px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .topbar h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
-  .topbar p { font-size: 12px; opacity: .7; margin-top: 2px; font-family: 'DM Mono', monospace; }
-  .container { max-width: 540px; margin: 0 auto; padding: 16px 14px; }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  .card-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text3);
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    margin-bottom: 14px;
-  }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-  .field label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; font-weight: 500; }
-  .field input, .field select {
-    width: 100%; height: 40px; padding: 0 11px;
-    font-size: 14px; font-family: 'DM Sans', sans-serif;
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    background: var(--surface2); color: var(--text); outline: none;
-    transition: border-color .15s, background .15s;
-  }
-  .field input:focus, .field select:focus {
-    border-color: var(--accent); background: #fff;
-  }
-  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-  .tab {
-    padding: 6px 13px; font-size: 12px; font-weight: 500;
-    border: 1px solid var(--border); border-radius: 20px;
-    cursor: pointer; background: var(--surface2); color: var(--text2);
-    transition: all .15s; font-family: 'DM Sans', sans-serif;
-  }
-  .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .tab:hover:not(.active) { border-color: var(--border2); color: var(--text); }
-  .material-section { display: none; }
-  .material-section.active { display: block; }
-  .waste-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-  .waste-row label { font-size: 12px; color: var(--text2); font-weight: 500; white-space: nowrap; min-width: 60px; }
-  .waste-row input[type=range] {
-    flex: 1; -webkit-appearance: none; height: 4px;
-    background: var(--border2); border-radius: 2px; outline: none;
-  }
-  .waste-row input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 18px; height: 18px;
-    border-radius: 50%; background: var(--accent); cursor: pointer;
-    border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2);
-  }
-  .waste-row span { font-size: 13px; font-weight: 600; color: var(--accent); min-width: 34px; text-align: right; font-family: 'DM Mono', monospace; }
-  .tip { font-size: 11px; color: var(--text3); margin-top: 8px; line-height: 1.5; }
-  .openings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .openings-header span { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; }
-  .add-btn {
-    font-size: 12px; font-weight: 500; padding: 5px 12px;
-    border: 1px solid var(--border2); border-radius: 20px;
-    cursor: pointer; background: var(--surface2); color: var(--text2);
-    font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 4px;
-    transition: all .15s;
-  }
-  .add-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
-  .opening-row {
-    display: grid; grid-template-columns: 72px 1fr 1fr 56px 36px;
-    gap: 7px; align-items: end; margin-bottom: 8px;
-  }
-  .opening-row label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 3px; font-weight: 500; }
-  .opening-row input, .opening-row select {
-    width: 100%; height: 36px; padding: 0 8px; font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    background: var(--surface2); color: var(--text); outline: none;
-  }
-  .del-btn {
-    width: 36px; height: 36px; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); cursor: pointer; background: var(--surface2);
-    color: var(--text3); font-size: 16px; display: flex;
-    align-items: center; justify-content: center; align-self: flex-end;
-    transition: all .15s; font-family: 'DM Sans', sans-serif;
-  }
-  .del-btn:hover { background: #ffeaea; border-color: #f0b0b0; color: var(--red); }
-  .area-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .pill {
-    font-size: 11px; padding: 4px 10px; background: var(--accent-light);
-    border-radius: 20px; color: var(--accent-text); font-weight: 500;
-  }
-  .pill strong { font-weight: 600; }
-  .calc-btn {
-    width: 100%; padding: 14px; font-size: 16px; font-weight: 600;
-    background: var(--accent); color: #fff; border: none;
-    border-radius: var(--radius); cursor: pointer; font-family: 'DM Sans', sans-serif;
-    letter-spacing: -0.01em; transition: opacity .15s, transform .1s;
-  }
-  .calc-btn:hover { opacity: .9; }
-  .calc-btn:active { transform: scale(.99); }
-  .results { display: none; margin-top: 12px; }
-  .results.show { display: block; }
-  .res-title { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .05em; }
-  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 14px; }
-  .rc {
-    background: var(--surface2); border-radius: var(--radius-sm);
-    padding: 13px 14px; border: 1px solid var(--border);
-  }
-  .rc .rl { font-size: 11px; color: var(--text3); margin-bottom: 6px; font-weight: 500; }
-  .rc .rv { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; letter-spacing: -0.02em; }
-  .rc .ru { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .rc .rn { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
-  .waste-note { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 14px; }
-  .action-row { display: flex; gap: 9px; }
-  .action-btn {
-    flex: 1; padding: 11px 10px; font-size: 13px; font-weight: 600;
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    cursor: pointer; background: var(--surface); color: var(--text);
-    font-family: 'DM Sans', sans-serif; display: flex; align-items: center;
-    justify-content: center; gap: 6px; transition: all .15s;
-  }
-  .action-btn:hover { background: var(--surface2); border-color: var(--border2); }
-  .action-btn.wa { background: var(--wa); border-color: var(--wa); color: #fff; }
-  .action-btn.wa:hover { background: var(--wa-dark); border-color: var(--wa-dark); }
-  .action-btn.copied { background: var(--accent-light); border-color: var(--accent); color: var(--accent-text); }
-  .footer {
-    text-align: center; font-size: 11px; color: var(--text3);
-    margin-top: 28px; padding: 0 20px; line-height: 1.6;
-  }
-  @media (max-width: 400px) {
-    .row3 { grid-template-columns: 1fr 1fr; }
-    .opening-row { grid-template-columns: 64px 1fr 1fr 44px; }
-    .opening-row .del-btn-wrap { display: none; }
-  }
+:root{--bg:#f5f3ef;--surface:#ffffff;--surface2:#f0ede8;--border:#e2ded7;--border2:#cdc8bf;--text:#1a1917;--text2:#6b6760;--text3:#9e9a94;--accent:#2d5a3d;--accent-light:#e8f0eb;--accent-text:#1e3d29;--wa:#25D366;--wa-dark:#1aad52;--red:#c0392b;--radius:12px;--radius-sm:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px}
+.topbar{background:var(--accent);color:#fff;padding:14px 18px;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:16px;font-weight:600;letter-spacing:-0.01em}
+.topbar p{font-size:11px;opacity:.65;margin-top:2px;font-family:'DM Mono',monospace}
+.tabs-top{display:flex;background:var(--accent);border-top:1px solid rgba(255,255,255,.15)}
+.ttab{flex:1;padding:10px 6px;font-size:12px;font-weight:500;color:rgba(255,255,255,.6);cursor:pointer;text-align:center;border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
+.ttab.active{color:#fff;border-bottom:2px solid #fff}
+.view{display:none;padding:14px}.view.active{display:block}
+.container{max-width:540px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:9px}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:3px;font-weight:500}
+.field input,.field select{width:100%;height:38px;padding:0 10px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--accent);background:#fff}
+.utog{display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;width:fit-content;margin-bottom:9px}
+.ubtn{padding:5px 12px;font-size:11px;font-weight:500;cursor:pointer;background:var(--surface2);color:var(--text2);border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.ubtn.active{background:var(--accent);color:#fff}
+.slbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin:10px 0 6px}
+.mtabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.mtab{padding:5px 11px;font-size:11px;font-weight:500;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:var(--surface2);color:var(--text2);transition:all .15s;font-family:'DM Sans',sans-serif}
+.mtab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.mat-sec{display:none}.mat-sec.active{display:block}
+.waste-row{display:flex;align-items:center;gap:9px;margin-top:8px}
+.waste-row label{font-size:12px;color:var(--text2);font-weight:500;white-space:nowrap;min-width:58px}
+.waste-row input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--border2);border-radius:2px;outline:none}
+.waste-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.waste-row span{font-size:12px;font-weight:600;color:var(--accent);min-width:32px;text-align:right;font-family:'DM Mono',monospace}
+.tip{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5}
+.calc-btn{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.calc-btn:hover{opacity:.88}
+.results{display:none;margin-top:10px}.results.show{display:block}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.rc{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border)}
+.rc .rl{font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500}
+.rc .rv{font-size:20px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace}
+.rc .ru{font-size:11px;color:var(--text2);margin-top:2px}
+.rc .rn{font-size:11px;color:var(--text3);margin-top:2px}
+.divider{border:none;border-top:1px solid var(--border);margin:12px 0}
+.waste-note{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.action-row{display:flex;gap:8px}
+.action-btn{flex:1;padding:10px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.action-btn:hover{background:var(--surface2)}
+.action-btn.wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.action-btn.wa:hover{background:var(--wa-dark)}
+.action-btn.cp{background:var(--accent-light);border-color:var(--accent);color:var(--accent-text)}
+.area-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pill{font-size:11px;padding:4px 10px;background:var(--accent-light);border-radius:20px;color:var(--accent-text);font-weight:500}
+.pill strong{font-weight:600}
+.opening-row{display:grid;grid-template-columns:68px 1fr 1fr 50px 34px;gap:7px;align-items:end;margin-bottom:7px}
+.opening-row label{font-size:11px;color:var(--text2);display:block;margin-bottom:3px;font-weight:500}
+.opening-row input,.opening-row select{width:100%;height:34px;padding:0 7px;font-size:12px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none}
+.del-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:var(--surface2);color:var(--text3);font-size:14px;display:flex;align-items:center;justify-content:center;align-self:flex-end;transition:all .15s}
+.del-btn:hover{background:#ffeaea;border-color:#f0b0b0;color:var(--red)}
+.add-open-btn{font-size:11px;font-weight:500;padding:4px 11px;border:1px solid var(--border2);border-radius:20px;cursor:pointer;background:var(--surface2);color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
+.add-open-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent-text)}
+/* Multi-room */
+.room-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:9px;overflow:hidden}
+.room-header{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;user-select:none}
+.room-header:hover{background:var(--surface2)}
+.rnum{width:24px;height:24px;background:var(--accent);color:#fff;border-radius:50%;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rname-inp{flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--text);outline:none;font-family:'DM Sans',sans-serif}
+.rstatus{font-size:10px;color:var(--text3);white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+.rdel{width:26px;height:26px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;background:transparent;color:var(--text3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:13px}
+.rdel:hover{background:#ffeaea;color:var(--red);border-color:#f0b0b0}
+.rchev{font-size:13px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+.rchev.open{transform:rotate(180deg)}
+.rbody{display:none;padding:13px;border-top:1px solid var(--border)}
+.rbody.open{display:block}
+.add-room-btn{width:100%;padding:10px;font-size:12px;font-weight:500;border:1px dashed var(--border2);border-radius:var(--radius);cursor:pointer;background:transparent;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;margin-bottom:10px;font-family:'DM Sans',sans-serif}
+.add-room-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.calc-all-btn{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--text);color:var(--bg);border:none;border-radius:var(--radius);cursor:pointer;margin-bottom:10px;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.calc-all-btn:hover{opacity:.85}
+.summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:none}
+.summary.show{display:block}
+.sum-hdr{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:11px}
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:11px}
+.scard{background:var(--surface2);border-radius:var(--radius-sm);padding:11px}
+.scard .sl{font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:500}
+.scard .sv{font-size:18px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace}
+.scard .su{font-size:10px;color:var(--text2)}
+.brow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.brow:last-child{border:none}
+.brow-l{color:var(--text);font-weight:500}
+.brow-s{font-size:10px;color:var(--text3);margin-top:1px}
+.brow-r{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);text-align:right}
+.footer{text-align:center;font-size:11px;color:var(--text3);margin-top:24px;line-height:1.7;padding:0 16px}
 </style>
 </head>
 <body>
-
 <div class="topbar">
-  <h1>Material Calculator</h1>
-  <p>Paint · Tiles · Flooring · Wallpaper · Ceiling</p>
+  <h1>Measuro — Material Calculator</h1>
+  <p>Paint · Tiles · Flooring · Wallpaper · Ceiling · Skirting</p>
+</div>
+<div class="tabs-top">
+  <button class="ttab active" onclick="switchView('single',this)">Single room</button>
+  <button class="ttab" onclick="switchView('multi',this)">Multi-room</button>
 </div>
 
+<!-- SINGLE ROOM VIEW -->
+<div class="view active" id="view-single">
 <div class="container">
-
-  <div class="card">
+  <div class="card" style="margin-top:14px">
     <div class="card-title">Room dimensions</div>
     <div class="row2">
-      <div class="field"><label>Length</label><input type="number" id="length" placeholder="e.g. 12" min="0" step="0.1" oninput="updateAreas()"></div>
-      <div class="field"><label>Width</label><input type="number" id="width" placeholder="e.g. 10" min="0" step="0.1" oninput="updateAreas()"></div>
+      <div class="field"><label id="s-lbl-L">Length (ft)</label><input type="number" id="s-L" placeholder="12" min="0" step="0.1" oninput="sUpdateAreas()"></div>
+      <div class="field"><label id="s-lbl-W">Width (ft)</label><input type="number" id="s-W" placeholder="10" min="0" step="0.1" oninput="sUpdateAreas()"></div>
     </div>
     <div class="row2">
-      <div class="field"><label>Height</label><input type="number" id="height" placeholder="e.g. 9" min="0" step="0.1" oninput="updateAreas()"></div>
+      <div class="field"><label id="s-lbl-H">Height (ft)</label><input type="number" id="s-H" placeholder="9" min="0" step="0.1" oninput="sUpdateAreas()"></div>
       <div class="field"><label>Unit</label>
-        <select id="unit" onchange="updateAreas()">
-          <option value="ft">Feet (ft)</option>
-          <option value="m">Metres (m)</option>
+        <select id="s-unit" onchange="sSetRoomUnit()">
+          <option value="ft">Feet</option><option value="m">Metres</option><option value="cm">Centimetres</option>
         </select>
       </div>
     </div>
-    <div id="area-pills" class="area-pills" style="display:none"></div>
+    <div id="s-area-pills" class="area-pills" style="display:none"></div>
   </div>
 
   <div class="card">
-    <div class="openings-header">
-      <span>Doors &amp; windows</span>
-      <button class="add-btn" onclick="addOpening()">+ Add opening</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-title" style="margin:0">Doors &amp; windows</div>
+      <button class="add-open-btn" onclick="sAddOpening()">+ Add</button>
     </div>
-    <div id="openings-list"></div>
-    <p class="tip">Areas are automatically deducted from wall calculations.</p>
+    <div id="s-openings"></div>
+    <p class="tip">Deducted from wall and tile areas automatically.</p>
   </div>
 
   <div class="card">
-    <div class="card-title">Select material</div>
-    <div class="tabs">
-      <div class="tab active" data-mat="paint">Paint</div>
-      <div class="tab" data-mat="floortile">Floor tiles</div>
-      <div class="tab" data-mat="walltile">Wall tiles</div>
-      <div class="tab" data-mat="wallpaper">Wallpaper</div>
-      <div class="tab" data-mat="flooring">Wood/laminate</div>
-      <div class="tab" data-mat="ceiling">Ceiling</div>
+    <div class="card-title">Material</div>
+    <div class="mtabs">
+      <div class="mtab active" data-mat="paint" onclick="sSwitchMat('paint',this)">Paint</div>
+      <div class="mtab" data-mat="floortile" onclick="sSwitchMat('floortile',this)">Floor tiles</div>
+      <div class="mtab" data-mat="walltile" onclick="sSwitchMat('walltile',this)">Wall tiles</div>
+      <div class="mtab" data-mat="wallpaper" onclick="sSwitchMat('wallpaper',this)">Wallpaper</div>
+      <div class="mtab" data-mat="flooring" onclick="sSwitchMat('flooring',this)">Wood/laminate</div>
+      <div class="mtab" data-mat="ceiling" onclick="sSwitchMat('ceiling',this)">Ceiling</div>
+      <div class="mtab" data-mat="skirting" onclick="sSwitchMat('skirting',this)">Skirting</div>
     </div>
 
-    <!-- Paint -->
-    <div id="mat-paint" class="material-section active">
+    <div class="mat-sec active" id="s-mat-paint">
       <div class="row2">
-        <div class="field"><label>Coverage / litre (sq ft)</label><input type="number" id="paint-cov" value="120" min="1"></div>
-        <div class="field"><label>Number of coats</label>
-          <select id="paint-coats">
-            <option value="1">1 coat</option>
-            <option value="2" selected>2 coats</option>
-            <option value="3">3 coats</option>
-          </select>
-        </div>
+        <div class="field"><label id="s-lbl-pcov">Coverage/litre (sq ft)</label><input type="number" id="s-pcov" value="120" min="1"></div>
+        <div class="field"><label>Coats</label><select id="s-pcoats"><option value="1">1 coat</option><option value="2" selected>2 coats</option><option value="3">3 coats</option></select></div>
       </div>
-      <div class="field" style="margin-bottom:4px"><label>Paint which surface?</label>
-        <select id="paint-area">
-          <option value="walls">Walls only</option>
-          <option value="ceiling">Ceiling only</option>
-          <option value="both">Walls + ceiling</option>
-        </select>
-      </div>
-      <div class="waste-row"><label>Wastage</label><input type="range" id="paint-waste" min="0" max="25" value="10" step="1" oninput="document.getElementById('paint-waste-val').textContent=this.value+'%'"><span id="paint-waste-val">10%</span></div>
-      <p class="tip">Standard coverage ≈ 120 sq ft/litre. Increase for dark colours or rough walls.</p>
+      <div class="field" style="margin-bottom:4px"><label>Surface</label><select id="s-psurf"><option value="walls">Walls only</option><option value="ceil">Ceiling only</option><option value="both">Walls + ceiling</option></select></div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="s-pw" min="0" max="25" value="10" step="1" oninput="document.getElementById('s-pwv').textContent=this.value+'%'"><span id="s-pwv">10%</span></div>
+      <p class="tip">~120 sq ft/litre (≈11 sq m/litre). Increase for dark colours or rough walls.</p>
     </div>
 
-    <!-- Floor tiles -->
-    <div id="mat-floortile" class="material-section">
+    <div class="mat-sec" id="s-mat-floortile">
+      <div class="slbl">Tile size unit</div>
+      <div class="utog" id="s-ftu"><button class="ubtn active" onclick="sSetTU('ft',this)">Inches</button><button class="ubtn" onclick="sSetTU('ft-cm',this)">cm</button></div>
       <div class="row3">
-        <div class="field"><label>Tile length (in)</label><input type="number" id="ft-tl" value="24" min="1"></div>
-        <div class="field"><label>Tile width (in)</label><input type="number" id="ft-tw" value="24" min="1"></div>
-        <div class="field"><label>Tiles/box</label><input type="number" id="ft-box" value="4" min="1"></div>
+        <div class="field"><label id="s-lbl-ftl">Length (in)</label><input type="number" id="s-ftl" value="24" min="1"></div>
+        <div class="field"><label id="s-lbl-ftw">Width (in)</label><input type="number" id="s-ftw" value="24" min="1"></div>
+        <div class="field"><label>Tiles/box</label><input type="number" id="s-ftb" value="4" min="1"></div>
       </div>
-      <div class="waste-row"><label>Wastage</label><input type="range" id="ft-waste" min="5" max="25" value="10" step="1" oninput="document.getElementById('ft-waste-val').textContent=this.value+'%'"><span id="ft-waste-val">10%</span></div>
-      <p class="tip">Add 15–20% extra for diagonal or pattern laying.</p>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="s-ftw2" min="5" max="25" value="10" step="1" oninput="document.getElementById('s-ftwv').textContent=this.value+'%'"><span id="s-ftwv">10%</span></div>
+      <p class="tip">Add 15–20% for diagonal laying.</p>
     </div>
 
-    <!-- Wall tiles -->
-    <div id="mat-walltile" class="material-section">
+    <div class="mat-sec" id="s-mat-walltile">
+      <div class="slbl">Tile size unit</div>
+      <div class="utog" id="s-wtu"><button class="ubtn active" onclick="sSetTU('wt',this)">Inches</button><button class="ubtn" onclick="sSetTU('wt-cm',this)">cm</button></div>
       <div class="row3">
-        <div class="field"><label>Tile length (in)</label><input type="number" id="wt-tl" value="12" min="1"></div>
-        <div class="field"><label>Tile width (in)</label><input type="number" id="wt-tw" value="12" min="1"></div>
-        <div class="field"><label>Tiles/box</label><input type="number" id="wt-box" value="6" min="1"></div>
+        <div class="field"><label id="s-lbl-wtl">Length (in)</label><input type="number" id="s-wtl" value="12" min="1"></div>
+        <div class="field"><label id="s-lbl-wtw">Width (in)</label><input type="number" id="s-wtw" value="12" min="1"></div>
+        <div class="field"><label>Tiles/box</label><input type="number" id="s-wtb" value="6" min="1"></div>
       </div>
-      <div class="row2" style="margin-top:2px">
-        <div class="field"><label>Tile up to height (ft)</label><input type="number" id="wt-ht" value="4" min="0.5" step="0.5"></div>
-      </div>
-      <div class="waste-row"><label>Wastage</label><input type="range" id="wt-waste" min="5" max="25" value="12" step="1" oninput="document.getElementById('wt-waste-val').textContent=this.value+'%'"><span id="wt-waste-val">12%</span></div>
-      <p class="tip">Door and window areas are deducted automatically.</p>
+      <div class="row2"><div class="field"><label id="s-lbl-wth">Tile to height (ft)</label><input type="number" id="s-wth" value="4" min="0.5" step="0.5"></div></div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="s-wtw2" min="5" max="25" value="12" step="1" oninput="document.getElementById('s-wtwv').textContent=this.value+'%'"><span id="s-wtwv">12%</span></div>
     </div>
 
-    <!-- Wallpaper -->
-    <div id="mat-wallpaper" class="material-section">
+    <div class="mat-sec" id="s-mat-wallpaper">
+      <div class="slbl">Roll size unit</div>
+      <div class="utog" id="s-wpu"><button class="ubtn active" onclick="sSetWpU('in',this)">in / ft</button><button class="ubtn" onclick="sSetWpU('cm',this)">cm / m</button></div>
       <div class="row3">
-        <div class="field"><label>Roll width (in)</label><input type="number" id="wp-w" value="21" min="1"></div>
-        <div class="field"><label>Roll length (ft)</label><input type="number" id="wp-l" value="33" min="1"></div>
-        <div class="field"><label>Pattern repeat (in)</label><input type="number" id="wp-rep" value="0" min="0"></div>
+        <div class="field"><label id="s-lbl-wpw">Roll width (in)</label><input type="number" id="s-wpw" value="21" min="1"></div>
+        <div class="field"><label id="s-lbl-wpl">Roll length (ft)</label><input type="number" id="s-wpl" value="33" min="1"></div>
+        <div class="field"><label id="s-lbl-wpr">Repeat (in)</label><input type="number" id="s-wpr" value="0" min="0"></div>
       </div>
-      <div class="waste-row"><label>Wastage</label><input type="range" id="wp-waste" min="5" max="30" value="12" step="1" oninput="document.getElementById('wp-waste-val').textContent=this.value+'%'"><span id="wp-waste-val">12%</span></div>
-      <p class="tip">Standard rolls are 21" × 33 ft. Enter 0 for no pattern repeat.</p>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="s-wpw2" min="5" max="30" value="12" step="1" oninput="document.getElementById('s-wpwv').textContent=this.value+'%'"><span id="s-wpwv">12%</span></div>
+      <p class="tip">Standard: 21"×33 ft or 53cm×10m.</p>
     </div>
 
-    <!-- Wood/laminate -->
-    <div id="mat-flooring" class="material-section">
+    <div class="mat-sec" id="s-mat-flooring">
+      <div class="slbl">Board size unit</div>
+      <div class="utog" id="s-flu"><button class="ubtn active" onclick="sSetFlU('in',this)">in / ft</button><button class="ubtn" onclick="sSetFlU('cm',this)">cm / m</button></div>
       <div class="row3">
-        <div class="field"><label>Board width (in)</label><input type="number" id="fl-w" value="5" min="1" step="0.5"></div>
-        <div class="field"><label>Board length (ft)</label><input type="number" id="fl-l" value="4" min="1" step="0.5"></div>
-        <div class="field"><label>Boards/pack</label><input type="number" id="fl-box" value="8" min="1"></div>
+        <div class="field"><label id="s-lbl-flw">Width (in)</label><input type="number" id="s-flw" value="5" min="1" step="0.5"></div>
+        <div class="field"><label id="s-lbl-fll">Length (ft)</label><input type="number" id="s-fll" value="4" min="1" step="0.5"></div>
+        <div class="field"><label>Boards/pack</label><input type="number" id="s-flb" value="8" min="1"></div>
       </div>
-      <div class="waste-row"><label>Wastage</label><input type="range" id="fl-waste" min="5" max="20" value="10" step="1" oninput="document.getElementById('fl-waste-val').textContent=this.value+'%'"><span id="fl-waste-val">10%</span></div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="s-flw2" min="5" max="20" value="10" step="1" oninput="document.getElementById('s-flwv').textContent=this.value+'%'"><span id="s-flwv">10%</span></div>
       <p class="tip">Add 5% for diagonal or herringbone layouts.</p>
     </div>
 
-    <!-- Ceiling -->
-    <div id="mat-ceiling" class="material-section">
+    <div class="mat-sec" id="s-mat-ceiling">
       <div class="row2">
-        <div class="field"><label>Ceiling type</label>
-          <select id="ce-type" onchange="toggleCeiling()">
-            <option value="paint">Paint only</option>
-            <option value="gyp">Gypsum board</option>
-            <option value="tile">Ceiling tiles</option>
-          </select>
-        </div>
-        <div class="field" id="ce-cov-wrap"><label>Coverage / litre (sq ft)</label><input type="number" id="ce-cov" value="120" min="1"></div>
+        <div class="field"><label>Type</label><select id="s-cetype" onchange="sTogCeil()"><option value="paint">Paint</option><option value="gyp">Gypsum board</option><option value="tile">Ceiling tiles</option></select></div>
+        <div class="field" id="s-cecov"><label id="s-lbl-cecov">Coverage/litre (sq ft)</label><input type="number" id="s-cecovv" value="120" min="1"></div>
       </div>
-      <div class="row2" id="ce-tile-row" style="display:none">
-        <div class="field"><label>Tile size</label>
-          <select id="ce-tile-sz">
-            <option value="24x24">24 × 24 in</option>
-            <option value="12x12">12 × 12 in</option>
-            <option value="48x24">48 × 24 in</option>
-          </select>
+      <div id="s-cetrow" style="display:none">
+        <div class="row2">
+          <div class="field"><label>Tile size</label>
+            <select id="s-cets"><option value="24x24in">24×24 in</option><option value="12x12in">12×12 in</option><option value="48x24in">48×24 in</option><option value="60x60cm">60×60 cm</option><option value="30x30cm">30×30 cm</option><option value="120x60cm">120×60 cm</option></select>
+          </div>
+          <div class="field"><label>Tiles/box</label><input type="number" id="s-cetb" value="10" min="1"></div>
         </div>
-        <div class="field"><label>Tiles/box</label><input type="number" id="ce-tile-box" value="10" min="1"></div>
       </div>
-      <div class="waste-row"><label>Wastage</label><input type="range" id="ce-waste" min="5" max="20" value="10" step="1" oninput="document.getElementById('ce-waste-val').textContent=this.value+'%'"><span id="ce-waste-val">10%</span></div>
+      <div class="waste-row"><label>Wastage</label><input type="range" id="s-cew" min="5" max="20" value="10" step="1" oninput="document.getElementById('s-cewv').textContent=this.value+'%'"><span id="s-cewv">10%</span></div>
+    </div>
+
+    <div class="mat-sec" id="s-mat-skirting">
+      <p class="tip" style="margin-bottom:8px">Perimeter calculated from room dimensions. Subtract doorways below.</p>
+      <div class="row2">
+        <div class="field"><label>Door count</label><input type="number" id="s-skd" value="1" min="0"></div>
+        <div class="field"><label id="s-lbl-skdw">Door width (ft)</label><input type="number" id="s-skdw" value="3" min="0" step="0.1"></div>
+      </div>
+      <div class="slbl">Board length unit</div>
+      <div class="utog" id="s-sku"><button class="ubtn active" onclick="sSetSkU('ft',this)">Feet</button><button class="ubtn" onclick="sSetSkU('m',this)">Metres</button></div>
+      <div class="row2">
+        <div class="field"><label id="s-lbl-skbl">Board length (ft)</label><input type="number" id="s-skbl" value="8" min="1" step="0.5"></div>
+        <div class="field"><label>Wastage</label><select id="s-skw"><option value="5">5%</option><option value="10" selected>10%</option><option value="15">15%</option></select></div>
+      </div>
     </div>
   </div>
 
-  <button class="calc-btn" onclick="calculate()">Calculate quantity →</button>
+  <button class="calc-btn" onclick="sCalc()">Calculate quantity →</button>
 
-  <div class="results card" id="results">
-    <div class="res-title" id="res-title">Results</div>
-    <div class="result-grid" id="result-grid"></div>
+  <div class="results card" id="s-results">
+    <div class="card-title" id="s-res-title">Results</div>
+    <div class="result-grid" id="s-res-grid"></div>
     <div class="divider"></div>
-    <p class="waste-note" id="waste-info"></p>
+    <p class="waste-note" id="s-res-note"></p>
     <div class="action-row">
-      <button class="action-btn" id="copy-btn" onclick="copyResults()">&#x2398; Copy</button>
-      <button class="action-btn wa" onclick="shareWA()">&#x2714; WhatsApp</button>
+      <button class="action-btn" id="s-copy-btn" onclick="sCopy()">&#x2398; Copy</button>
+      <button class="action-btn wa" onclick="sWA()">&#x2714; WhatsApp</button>
     </div>
   </div>
 
-  <div class="footer">
-    Material Calculator &nbsp;·&nbsp; Works offline &nbsp;·&nbsp; Free to use<br>
-    Quantities are estimates. Always verify before purchasing.
-  </div>
+  <div class="footer">Measuro · Free material calculator · bit.ly/measuro<br>Estimates only — verify before purchasing.</div>
+</div>
+</div>
 
+<!-- MULTI ROOM VIEW -->
+<div class="view" id="view-multi">
+<div class="container" style="padding-top:14px">
+  <div id="mr-rooms"></div>
+  <button class="add-room-btn" onclick="mrAddRoom()">+ Add room</button>
+  <button class="calc-all-btn" onclick="mrCalcAll()">Calculate all rooms →</button>
+  <div class="summary" id="mr-summary">
+    <div class="sum-hdr">Whole-house summary</div>
+    <div class="sum-grid" id="mr-sum-grid"></div>
+    <div id="mr-bdown" style="margin-bottom:10px"></div>
+    <div class="divider"></div>
+    <div class="action-row">
+      <button class="action-btn" id="mr-copy-btn" onclick="mrCopyAll()">&#x2398; Copy</button>
+      <button class="action-btn wa" onclick="mrShareAll()">&#x2714; WhatsApp</button>
+    </div>
+  </div>
+  <div class="footer">Measuro · Free material calculator · bit.ly/measuro<br>Estimates only — verify before purchasing.</div>
+</div>
 </div>
 
 <script>
-var openingCount=0;
-var lastResults={title:'',lines:[],note:''};
+var g=function(id){return document.getElementById(id);};
+var sOC=0,sLastRes={title:'',lines:[],note:''};
+var sWpU='in',sFlU='in',sSkU='ft',sFtU='in',sWtU='in';
+var mrRooms=[],mrRC=0;
+var NAMES=['Living room','Master bedroom','Bedroom 2','Kitchen','Bathroom','Dining room','Study','Guest room'];
+var MLBL={paint:'Paint',floortile:'Floor tiles',walltile:'Wall tiles',wallpaper:'Wallpaper',flooring:'Wood/laminate',ceiling:'Ceiling',skirting:'Skirting'};
 
-function $(id){return document.getElementById(id);}
-
-function toggleCeiling(){
-  var v=$('ce-type').value;
-  $('ce-cov-wrap').style.display=v==='paint'?'block':'none';
-  $('ce-tile-row').style.display=v==='tile'?'grid':'none';
+function switchView(v,btn){
+  document.querySelectorAll('.view').forEach(function(x){x.classList.remove('active');});
+  document.querySelectorAll('.ttab').forEach(function(x){x.classList.remove('active');});
+  g('view-'+v).classList.add('active');btn.classList.add('active');
 }
 
-document.querySelectorAll('.tab').forEach(function(t){
-  t.onclick=function(){
-    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
-    document.querySelectorAll('.material-section').forEach(function(x){x.classList.remove('active');});
-    t.classList.add('active');
-    $('mat-'+t.dataset.mat).classList.add('active');
-  };
-});
+/* ---- SINGLE ROOM ---- */
+function toSqFt(v,u){return u==='m'?v*10.764:u==='cm'?v*0.001076:v;}
+function toFt(v,u){return u==='m'?v*3.281:u==='cm'?v*0.0328:v;}
+function inToFt(v){return v/12;}function cmToFt(v){return v/30.48;}
+function tileSF(l,w,u){return u==='cm'?cmToFt(l)*cmToFt(w):inToFt(l)*inToFt(w);}
 
-function addOpening(){
-  openingCount++;
-  var id=openingCount;
-  var div=document.createElement('div');
-  div.className='opening-row';
-  div.id='op-'+id;
-  div.innerHTML=
-    '<div><label>Type</label><select id="op-type-'+id+'"><option value="door">Door</option><option value="window">Window</option></select></div>'+
-    '<div><label>Width</label><input type="number" id="op-w-'+id+'" value="3" min="0.1" step="0.1" oninput="updateAreas()"></div>'+
-    '<div><label>Height</label><input type="number" id="op-h-'+id+'" value="7" min="0.1" step="0.1" oninput="updateAreas()"></div>'+
-    '<div><label>Qty</label><input type="number" id="op-q-'+id+'" value="1" min="1" oninput="updateAreas()"></div>'+
-    '<button class="del-btn" onclick="removeOpening('+id+')" aria-label="Remove">&#x2715;</button>';
-  $('openings-list').appendChild(div);
-  updateAreas();
+function sSetRoomUnit(){
+  var u=g('s-unit').value,lbl=u==='ft'?'ft':u==='m'?'m':'cm';
+  g('s-lbl-L').textContent='Length ('+lbl+')';g('s-lbl-W').textContent='Width ('+lbl+')';g('s-lbl-H').textContent='Height ('+lbl+')';
+  g('s-lbl-wth').textContent='Tile to height ('+lbl+')';g('s-lbl-skdw').textContent='Door width ('+lbl+')';
+  var isFt=u==='ft';
+  g('s-lbl-pcov').textContent='Coverage/litre ('+(isFt?'sq ft':'sq m')+')';g('s-pcov').value=isFt?120:11;
+  g('s-lbl-cecov').textContent='Coverage/litre ('+(isFt?'sq ft':'sq m')+')';g('s-cecovv').value=isFt?120:11;
+  sUpdateAreas();
 }
-
-function removeOpening(id){
-  var el=$('op-'+id);
-  if(el)el.remove();
-  updateAreas();
+function sSetTU(prefix,btn){
+  var isCm=btn.textContent==='cm';
+  if(prefix==='ft'){sFtU=isCm?'cm':'in';g('s-ftu').querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');g('s-lbl-ftl').textContent='Length ('+(isCm?'cm':'in')+')';g('s-lbl-ftw').textContent='Width ('+(isCm?'cm':'in')+')';g('s-ftl').value=isCm?60:24;g('s-ftw').value=isCm?60:24;}
+  else{sWtU=isCm?'cm':'in';g('s-wtu').querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');g('s-lbl-wtl').textContent='Length ('+(isCm?'cm':'in')+')';g('s-lbl-wtw').textContent='Width ('+(isCm?'cm':'in')+')';g('s-wtl').value=isCm?30:12;g('s-wtw').value=isCm?30:12;}
 }
-
-function getOpeningsArea(){
-  var total=0;
-  document.querySelectorAll('[id^="op-w-"]').forEach(function(el){
-    var id=el.id.replace('op-w-','');
-    var w=parseFloat(el.value)||0;
-    var h=parseFloat($('op-h-'+id).value)||0;
-    var q=parseFloat($('op-q-'+id).value)||1;
-    total+=w*h*q;
-  });
-  return total;
+function sSetWpU(u,btn){sWpU=u;g('s-wpu').querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');if(u==='cm'){g('s-lbl-wpw').textContent='Roll width (cm)';g('s-lbl-wpl').textContent='Roll length (m)';g('s-lbl-wpr').textContent='Repeat (cm)';g('s-wpw').value=53;g('s-wpl').value=10;g('s-wpr').value=0;}else{g('s-lbl-wpw').textContent='Roll width (in)';g('s-lbl-wpl').textContent='Roll length (ft)';g('s-lbl-wpr').textContent='Repeat (in)';g('s-wpw').value=21;g('s-wpl').value=33;g('s-wpr').value=0;}}
+function sSetFlU(u,btn){sFlU=u;g('s-flu').querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');if(u==='cm'){g('s-lbl-flw').textContent='Width (cm)';g('s-lbl-fll').textContent='Length (m)';g('s-flw').value=12;g('s-fll').value=1.2;}else{g('s-lbl-flw').textContent='Width (in)';g('s-lbl-fll').textContent='Length (ft)';g('s-flw').value=5;g('s-fll').value=4;}}
+function sSetSkU(u,btn){sSkU=u;g('s-sku').querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');g('s-lbl-skbl').textContent='Board length ('+(u==='m'?'m':'ft')+')';g('s-skbl').value=u==='m'?2.4:8;}
+function sTogCeil(){var v=g('s-cetype').value;g('s-cecov').style.display=v==='paint'?'block':'none';g('s-cetrow').style.display=v==='tile'?'block':'none';}
+function sSwitchMat(mat,btn){document.querySelectorAll('.mtab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');document.querySelectorAll('[id^="s-mat-"]').forEach(function(x){x.classList.remove('active');});g('s-mat-'+mat).classList.add('active');}
+function sGetOpenDed(){var t=0;document.querySelectorAll('[id^="sop-w-"]').forEach(function(el){var id=el.id.replace('sop-w-','');var w=parseFloat(el.value)||0,h=parseFloat(g('sop-h-'+id).value)||0,q=parseFloat(g('sop-q-'+id).value)||1;t+=w*h*q;});return t;}
+function sAddOpening(){sOC++;var id=sOC;var d=document.createElement('div');d.className='opening-row';d.id='sop-'+id;d.innerHTML='<div><label>Type</label><select id="sop-t-'+id+'"><option>Door</option><option>Window</option></select></div><div><label>Width</label><input type="number" id="sop-w-'+id+'" value="3" min="0.1" step="0.1" oninput="sUpdateAreas()"></div><div><label>Height</label><input type="number" id="sop-h-'+id+'" value="7" min="0.1" step="0.1" oninput="sUpdateAreas()"></div><div><label>Qty</label><input type="number" id="sop-q-'+id+'" value="1" min="1" oninput="sUpdateAreas()"></div><button class="del-btn" onclick="g(\'sop-'+id+'\').remove();sUpdateAreas()" aria-label="Remove">&#x2715;</button>';g('s-openings').appendChild(d);sUpdateAreas();}
+function sUpdateAreas(){var L=parseFloat(g('s-L').value)||0,W=parseFloat(g('s-W').value)||0,H=parseFloat(g('s-H').value)||0,u=g('s-unit').value,p=g('s-area-pills');if(!L||!W||!H){p.style.display='none';return;}var fl=+(L*W).toFixed(2),wg=+(2*(L+W)*H).toFixed(2),ded=+sGetOpenDed().toFixed(2),wn=+(wg-ded).toFixed(2);p.style.display='flex';p.innerHTML='<span class="pill">Floor <strong>'+fl+' sq '+u+'</strong></span><span class="pill">Walls <strong>'+wg+' sq '+u+'</strong></span>'+(ded>0?'<span class="pill">Deductions <strong>&#x2212;'+ded+'</strong></span><span class="pill">Net walls <strong>'+wn+' sq '+u+'</strong></span>':'');}
+function sCard(l,v,u,n){return '<div class="rc"><div class="rl">'+l+'</div><div class="rv">'+v+'</div><div class="ru">'+u+'</div>'+(n?'<div class="rn">'+n+'</div>':'')+'</div>';}
+function sCalc(){
+  var L=parseFloat(g('s-L').value),W=parseFloat(g('s-W').value),H=parseFloat(g('s-H').value);
+  if(!L||!W||!H){alert('Enter all room dimensions first.');return;}
+  var u=g('s-unit').value,floor=toSqFt(L*W,u),walls=toSqFt(2*(L+W)*H,u)-toSqFt(sGetOpenDed(),u),ceil=toSqFt(L*W,u);
+  walls=Math.max(walls,0);
+  var mat=document.querySelector('#s-mat-paint').classList.contains('active')?'paint':document.querySelector('#s-mat-floortile').classList.contains('active')?'floortile':document.querySelector('#s-mat-walltile').classList.contains('active')?'walltile':document.querySelector('#s-mat-wallpaper').classList.contains('active')?'wallpaper':document.querySelector('#s-mat-flooring').classList.contains('active')?'flooring':document.querySelector('#s-mat-ceiling').classList.contains('active')?'ceiling':'skirting';
+  var html='',note='',lines=[];
+  if(mat==='paint'){var cov=parseFloat(g('s-pcov').value)||(u==='ft'?120:11);var covSF=u==='ft'?cov:cov*10.764;var coats=parseInt(g('s-pcoats').value)||2;var pw=parseInt(g('s-pw').value)/100;var surf=g('s-psurf').value;var area=surf==='walls'?walls:surf==='ceil'?ceil:walls+ceil;var total=+((area*coats/covSF)*(1+pw)).toFixed(1);var b4=Math.ceil(total/4),b10=Math.ceil(total/10);html=sCard('Litres needed',total,'litres','after wastage')+sCard('4 L tins',b4,'tins','minimum')+sCard('10 L tins',b10,'tins','alternative')+sCard('Area painted',Math.round(area),'sq ft','');note=g('s-pw').value+'% wastage. Net: '+((area*coats/covSF)).toFixed(1)+' L for '+coats+' coat'+(coats>1?'s':'')+'.';lines=['Litres: '+total+' L','4 L tins: '+b4,'10 L tins: '+b10,'Area: '+Math.round(area)+' sq ft'];}
+  else if(mat==='floortile'){var tl=parseFloat(g('s-ftl').value)||24,tw=parseFloat(g('s-ftw').value)||24,bx=parseInt(g('s-ftb').value)||4,fw=parseInt(g('s-ftw2').value)/100;var tsf=tileSF(tl,tw,sFtU);var tiles=Math.ceil(floor*(1+fw)/tsf),boxes=Math.ceil(tiles/bx);html=sCard('Tiles needed',tiles,'tiles','after wastage')+sCard('Boxes needed',boxes,'boxes',bx+' per box')+sCard('Floor area',Math.round(floor),'sq ft','')+sCard('Wastage',fw*100,'%','+'+Math.round(floor*fw)+' sq ft');note=fw*100+'% wastage. Tile: '+tl+(sFtU==='cm'?'cm':'in')+'×'+tw+(sFtU==='cm'?'cm':'in')+'.';lines=['Tiles: '+tiles,'Boxes: '+boxes,'Floor: '+Math.round(floor)+' sq ft'];}
+  else if(mat==='walltile'){var tl=parseFloat(g('s-wtl').value)||12,tw=parseFloat(g('s-wtw').value)||12,bx=parseInt(g('s-wtb').value)||6,ww=parseInt(g('s-wtw2').value)/100;var wht=parseFloat(g('s-wth').value)||H;var ta=Math.max(toSqFt(2*(L+W)*Math.min(wht,H),u)-toSqFt(sGetOpenDed(),u),0);var tsf=tileSF(tl,tw,sWtU);var tiles=Math.ceil(ta*(1+ww)/tsf),boxes=Math.ceil(tiles/bx);html=sCard('Tiles needed',tiles,'tiles','after wastage')+sCard('Boxes needed',boxes,'boxes',bx+' per box')+sCard('Wall area tiled',Math.round(ta),'sq ft','openings deducted')+sCard('Wastage',ww*100,'%','');note=ww*100+'% wastage. Tile: '+tl+(sWtU==='cm'?'cm':'in')+'×'+tw+(sWtU==='cm'?'cm':'in')+'. Up to '+wht+' '+u+'.';lines=['Tiles: '+tiles,'Boxes: '+boxes,'Wall area: '+Math.round(ta)+' sq ft'];}
+  else if(mat==='wallpaper'){var rpw=parseFloat(g('s-wpw').value)||21,rpl=parseFloat(g('s-wpl').value)||33,rep=parseFloat(g('s-wpr').value)||0,ww=parseInt(g('s-wpw2').value)/100;var wft=sWpU==='cm'?cmToFt(rpw):inToFt(rpw);var lft=sWpU==='cm'?rpl*3.281:rpl;var Hft=toFt(H,u);var repFt=sWpU==='cm'?cmToFt(rep):inToFt(rep);var eL=repFt>0?lft-(Hft%repFt||repFt):lft;var rc=wft*eL;var rolls=Math.ceil(walls*(1+ww)/rc);html=sCard('Rolls needed',rolls,'rolls','after wastage')+sCard('Wall area',Math.round(walls),'sq ft','openings deducted')+sCard('Per roll',Math.round(rc),'sq ft','usable')+sCard('Wastage',ww*100,'%','');note=ww*100+'% wastage.';lines=['Rolls: '+rolls,'Wall area: '+Math.round(walls)+' sq ft'];}
+  else if(mat==='flooring'){var fw=parseFloat(g('s-flw').value)||5,fl=parseFloat(g('s-fll').value)||4,fb=parseInt(g('s-flb').value)||8,fwaste=parseInt(g('s-flw2').value)/100;var bsf=sFlU==='cm'?(fw/100)*fl*10.764:(fw/12)*fl;var boards=Math.ceil(floor*(1+fwaste)/bsf),packs=Math.ceil(boards/fb);html=sCard('Boards needed',boards,'boards','after wastage')+sCard('Packs needed',packs,'packs',fb+' per pack')+sCard('Floor area',Math.round(floor),'sq ft','')+sCard('Wastage',fwaste*100,'%','');note=fwaste*100+'% wastage.';lines=['Boards: '+boards,'Packs: '+packs,'Floor: '+Math.round(floor)+' sq ft'];}
+  else if(mat==='ceiling'){var ct=g('s-cetype').value,cw=parseInt(g('s-cew').value)/100;if(ct==='paint'){var cov=parseFloat(g('s-cecovv').value)||(u==='ft'?120:11);var covSF=u==='ft'?cov:cov*10.764;var total=+((ceil*2/covSF)*(1+cw)).toFixed(1);html=sCard('Litres needed',total,'litres','after wastage')+sCard('4 L tins',Math.ceil(total/4),'tins','')+sCard('Ceiling area',Math.round(ceil),'sq ft','');}else if(ct==='gyp'){var sheets=Math.ceil(ceil*(1+cw)/32);html=sCard('Gypsum boards',sheets,'sheets','4×8 ft each')+sCard('Ceiling area',Math.round(ceil),'sq ft','');}else{var sz=g('s-cets').value;var isCm=sz.indexOf('cm')>-1;var pts=sz.replace('in','').replace('cm','').split('x');var tsf=(isCm?(parseInt(pts[0])/100)*(parseInt(pts[1])/100)*10.764:(parseInt(pts[0])/12)*(parseInt(pts[1])/12));var tb=parseInt(g('s-cetb').value)||10;var tiles=Math.ceil(ceil*(1+cw)/tsf),boxes=Math.ceil(tiles/tb);html=sCard('Tiles needed',tiles,'tiles','after wastage')+sCard('Boxes needed',boxes,'boxes',tb+' per box')+sCard('Ceiling area',Math.round(ceil),'sq ft','');}note=cw*100+'% wastage applied.';lines=[html.match(/class="rv">([^<]+)/g).map(function(m){return m.replace('class="rv">','').replace(/<\//,'');}).join(' | ')];}
+  else if(mat==='skirting'){var doors=parseInt(g('s-skd').value)||0;var dw=parseFloat(g('s-skdw').value)||3;var dwFt=toFt(dw,u);var perimFt=toFt(2*(L+W),u);var net=Math.max(perimFt-(doors*dwFt),0);var bl=parseFloat(g('s-skbl').value)||(sSkU==='m'?2.4:8);var blFt=sSkU==='m'?bl*3.281:bl;var sw=parseInt(g('s-skw').value)/100;var lengths=Math.ceil(net*(1+sw)/blFt);html=sCard('Total length',Math.round(net),'ft','net, doors deducted')+sCard('Boards needed',lengths,'lengths','to buy')+sCard('Board length',bl,sSkU==='m'?'m':'ft','')+sCard('Wastage',sw*100,'%','');note=sw*100+'% wastage. '+doors+' door(s) deducted. Board: '+bl+(sSkU==='m'?'m':'ft')+'.';lines=['Net length: '+Math.round(net)+' ft','Boards: '+lengths];}
+  var labels={paint:'Paint estimate',floortile:'Floor tile estimate',walltile:'Wall tile estimate',wallpaper:'Wallpaper estimate',flooring:'Wood/laminate estimate',ceiling:'Ceiling estimate',skirting:'Skirting estimate'};
+  g('s-res-title').textContent=labels[mat];g('s-res-grid').innerHTML=html;g('s-res-note').textContent=note;
+  sLastRes={title:labels[mat],lines:lines,note:note};g('s-results').classList.add('show');g('s-results').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+function sBuildText(){return sLastRes.title+'\n'+'—'.repeat(28)+'\n'+sLastRes.lines.join('\n')+'\n\nNote: '+sLastRes.note+'\n\nMeasuro — bit.ly/measuro';}
+function sCopy(){if(!sLastRes.lines.length){alert('Calculate first.');return;}navigator.clipboard.writeText(sBuildText()).then(function(){var b=g('s-copy-btn');b.classList.add('cp');b.textContent='✓ Copied!';setTimeout(function(){b.classList.remove('cp');b.innerHTML='&#x2398; Copy';},2200);});}
+function sWA(){if(!sLastRes.lines.length){alert('Calculate first.');return;}window.open('https://wa.me/?text='+encodeURIComponent('*'+sLastRes.title+'*\n'+sLastRes.lines.join('\n')+'\n\n_'+sLastRes.note+'_\n\nMeasuro — bit.ly/measuro'),'_blank');}
 
-function toSqFt(val,unit){return unit==='m'?val*10.764:val;}
-
-function updateAreas(){
-  var L=parseFloat($('length').value)||0;
-  var W=parseFloat($('width').value)||0;
-  var H=parseFloat($('height').value)||0;
-  var pills=$('area-pills');
-  if(!L||!W||!H){pills.style.display='none';return;}
-  var u=$('unit').value;
-  var floor=+(L*W).toFixed(1);
-  var wallsGross=+(2*(L+W)*H).toFixed(1);
-  var ded=+getOpeningsArea().toFixed(1);
-  var wallsNet=+(wallsGross-ded).toFixed(1);
-  pills.style.display='flex';
-  pills.innerHTML=
-    '<span class="pill">Floor <strong>'+floor+' sq '+u+'</strong></span>'+
-    '<span class="pill">Walls <strong>'+wallsGross+' sq '+u+'</strong></span>'+
-    (ded>0?'<span class="pill">Deductions <strong>&#x2212;'+ded+' sq '+u+'</strong></span><span class="pill">Net walls <strong>'+wallsNet+' sq '+u+'</strong></span>':'');
+/* ---- MULTI ROOM ---- */
+function mrAddRoom(){mrRC++;var id=mrRC;var name=NAMES[(id-1)%NAMES.length];mrRooms.push({id:id,name:name,result:null});var d=document.createElement('div');d.className='room-card';d.id='mr-room-'+id;d.innerHTML=mrRoomHTML(id,name);g('mr-rooms').appendChild(d);}
+function mrRoomHTML(id,name){
+return '<div class="room-header" onclick="mrToggle('+id+')"><div class="rnum">'+id+'</div><input class="rname-inp" id="mrn-'+id+'" value="'+name+'" onclick="event.stopPropagation()" oninput="mrUpdName('+id+')"><span class="rstatus" id="mrs-'+id+'">not calculated</span><button class="rdel" onclick="event.stopPropagation();mrDel('+id+')" aria-label="Remove">&#x2715;</button><span class="rchev open" id="mrc-'+id+'">&#x25BE;</span></div><div class="rbody open" id="mrb-'+id+'"><div class="row2"><div class="field"><label id="mrlL-'+id+'">Length (ft)</label><input type="number" id="mrL-'+id+'" placeholder="12" min="0" step="0.1"></div><div class="field"><label id="mrlW-'+id+'">Width (ft)</label><input type="number" id="mrW-'+id+'" placeholder="10" min="0" step="0.1"></div></div><div class="row2"><div class="field"><label id="mrlH-'+id+'">Height (ft)</label><input type="number" id="mrH-'+id+'" placeholder="9" min="0" step="0.1"></div><div class="field"><label>Unit</label><select id="mrU-'+id+'" onchange="mrUpdUnit('+id+')"><option value="ft">Feet</option><option value="m">Metres</option><option value="cm">cm</option></select></div></div>'
++'<div class="slbl">Material</div><div class="mtabs" id="mrtabs-'+id+'"><div class="mtab active" onclick="mrSetMat('+id+',\'paint\',this)">Paint</div><div class="mtab" onclick="mrSetMat('+id+',\'floortile\',this)">Floor tiles</div><div class="mtab" onclick="mrSetMat('+id+',\'walltile\',this)">Wall tiles</div><div class="mtab" onclick="mrSetMat('+id+',\'wallpaper\',this)">Wallpaper</div><div class="mtab" onclick="mrSetMat('+id+',\'flooring\',this)">Wood/laminate</div><div class="mtab" onclick="mrSetMat('+id+',\'ceiling\',this)">Ceiling</div><div class="mtab" onclick="mrSetMat('+id+',\'skirting\',this)">Skirting</div></div>'
++'<div class="mat-sec active" id="mrms-'+id+'-paint"><div class="row2"><div class="field"><label id="mrlpc-'+id+'">Coverage/litre (sq ft)</label><input type="number" id="mrpc-'+id+'" value="120" min="1"></div><div class="field"><label>Coats</label><select id="mrpco-'+id+'"><option value="1">1 coat</option><option value="2" selected>2 coats</option><option value="3">3 coats</option></select></div></div><div class="field" style="margin-bottom:4px"><label>Surface</label><select id="mrpsu-'+id+'"><option value="walls">Walls only</option><option value="ceil">Ceiling only</option><option value="both">Walls+ceiling</option></select></div><div class="waste-row"><label>Wastage</label><input type="range" id="mrpw-'+id+'" min="0" max="25" value="10" step="1" oninput="g(\'mrpwv-'+id+'\').textContent=this.value+\'%\'"><span id="mrpwv-'+id+'">10%</span></div></div>'
++'<div class="mat-sec" id="mrms-'+id+'-floortile"><div class="slbl">Tile unit</div><div class="utog" id="mrftu-'+id+'"><button class="ubtn active" onclick="mrSetTU('+id+',\'ft\',this)">Inches</button><button class="ubtn" onclick="mrSetTU('+id+',\'ft-cm\',this)">cm</button></div><div class="row3"><div class="field"><label id="mrftll-'+id+'">L (in)</label><input type="number" id="mrftl-'+id+'" value="24" min="1"></div><div class="field"><label id="mrftwl-'+id+'">W (in)</label><input type="number" id="mrftw-'+id+'" value="24" min="1"></div><div class="field"><label>Per box</label><input type="number" id="mrftb-'+id+'" value="4" min="1"></div></div><div class="waste-row"><label>Wastage</label><input type="range" id="mrftw2-'+id+'" min="5" max="25" value="10" step="1" oninput="g(\'mrftwv-'+id+'\').textContent=this.value+\'%\'"><span id="mrftwv-'+id+'">10%</span></div></div>'
++'<div class="mat-sec" id="mrms-'+id+'-walltile"><div class="slbl">Tile unit</div><div class="utog" id="mrwtu-'+id+'"><button class="ubtn active" onclick="mrSetTU('+id+',\'wt\',this)">Inches</button><button class="ubtn" onclick="mrSetTU('+id+',\'wt-cm\',this)">cm</button></div><div class="row3"><div class="field"><label id="mrwtll-'+id+'">L (in)</label><input type="number" id="mrwtl-'+id+'" value="12" min="1"></div><div class="field"><label id="mrwtwl-'+id+'">W (in)</label><input type="number" id="mrwtw-'+id+'" value="12" min="1"></div><div class="field"><label>Per box</label><input type="number" id="mrwtb-'+id+'" value="6" min="1"></div></div><div class="row2"><div class="field"><label id="mrwthl-'+id+'">Tile to height (ft)</label><input type="number" id="mrwth-'+id+'" value="4" min="0.5" step="0.5"></div></div><div class="waste-row"><label>Wastage</label><input type="range" id="mrwtw2-'+id+'" min="5" max="25" value="12" step="1" oninput="g(\'mrwtwv-'+id+'\').textContent=this.value+\'%\'"><span id="mrwtwv-'+id+'">12%</span></div></div>'
++'<div class="mat-sec" id="mrms-'+id+'-wallpaper"><div class="slbl">Roll unit</div><div class="utog" id="mrwpu-'+id+'"><button class="ubtn active" onclick="mrSetWpU('+id+',\'in\',this)">in/ft</button><button class="ubtn" onclick="mrSetWpU('+id+',\'cm\',this)">cm/m</button></div><div class="row3"><div class="field"><label id="mrwpwl-'+id+'">Width (in)</label><input type="number" id="mrwpw-'+id+'" value="21" min="1"></div><div class="field"><label id="mrwpll-'+id+'">Length (ft)</label><input type="number" id="mrwpl-'+id+'" value="33" min="1"></div><div class="field"><label id="mrwprl-'+id+'">Repeat (in)</label><input type="number" id="mrwpr-'+id+'" value="0" min="0"></div></div><div class="waste-row"><label>Wastage</label><input type="range" id="mrwpw2-'+id+'" min="5" max="30" value="12" step="1" oninput="g(\'mrwpwv-'+id+'\').textContent=this.value+\'%\'"><span id="mrwpwv-'+id+'">12%</span></div></div>'
++'<div class="mat-sec" id="mrms-'+id+'-flooring"><div class="slbl">Board unit</div><div class="utog" id="mrflu-'+id+'"><button class="ubtn active" onclick="mrSetFlU('+id+',\'in\',this)">in/ft</button><button class="ubtn" onclick="mrSetFlU('+id+',\'cm\',this)">cm/m</button></div><div class="row3"><div class="field"><label id="mrflwl-'+id+'">Width (in)</label><input type="number" id="mrflw-'+id+'" value="5" min="1" step="0.5"></div><div class="field"><label id="mrflll-'+id+'">Length (ft)</label><input type="number" id="mrfll-'+id+'" value="4" min="1" step="0.5"></div><div class="field"><label>Per pack</label><input type="number" id="mrflb-'+id+'" value="8" min="1"></div></div><div class="waste-row"><label>Wastage</label><input type="range" id="mrflw2-'+id+'" min="5" max="20" value="10" step="1" oninput="g(\'mrflwv-'+id+'\').textContent=this.value+\'%\'"><span id="mrflwv-'+id+'">10%</span></div></div>'
++'<div class="mat-sec" id="mrms-'+id+'-ceiling"><div class="row2"><div class="field"><label>Type</label><select id="mrcet-'+id+'" onchange="mrTogCeil('+id+')"><option value="paint">Paint</option><option value="gyp">Gypsum</option><option value="tile">Tiles</option></select></div><div class="field" id="mrcecov-'+id+'"><label>Coverage/litre</label><input type="number" id="mrcecovv-'+id+'" value="120" min="1"></div></div><div id="mrcetrow-'+id+'" style="display:none"><div class="row2"><div class="field"><label>Tile size</label><select id="mrcets-'+id+'"><option value="24x24in">24×24 in</option><option value="12x12in">12×12 in</option><option value="48x24in">48×24 in</option><option value="60x60cm">60×60 cm</option><option value="30x30cm">30×30 cm</option></select></div><div class="field"><label>Per box</label><input type="number" id="mrcetb-'+id+'" value="10" min="1"></div></div></div><div class="waste-row"><label>Wastage</label><input type="range" id="mrcew-'+id+'" min="5" max="20" value="10" step="1" oninput="g(\'mrcewv-'+id+'\').textContent=this.value+\'%\'"><span id="mrcewv-'+id+'">10%</span></div></div>'
++'<div class="mat-sec" id="mrms-'+id+'-skirting"><p class="tip" style="margin-bottom:7px">Perimeter from room dimensions. Subtract doors below.</p><div class="row2"><div class="field"><label>Door count</label><input type="number" id="mrskd-'+id+'" value="1" min="0"></div><div class="field"><label id="mrskdwl-'+id+'">Door width (ft)</label><input type="number" id="mrskdw-'+id+'" value="3" min="0" step="0.1"></div></div><div class="slbl">Board unit</div><div class="utog" id="mrsku-'+id+'"><button class="ubtn active" onclick="mrSetSkU('+id+',\'ft\',this)">Feet</button><button class="ubtn" onclick="mrSetSkU('+id+',\'m\',this)">Metres</button></div><div class="row2"><div class="field"><label id="mrskbll-'+id+'">Board length (ft)</label><input type="number" id="mrskbl-'+id+'" value="8" min="1" step="0.5"></div><div class="field"><label>Wastage</label><select id="mrskw-'+id+'"><option value="5">5%</option><option value="10" selected>10%</option><option value="15">15%</option></select></div></div></div>'
++'<button class="calc-btn" style="margin-top:10px;font-size:13px;padding:10px" onclick="mrCalcRoom('+id+')">Calculate this room</button><div class="results" id="mrr-'+id+'"><div class="result-grid" id="mrrg-'+id+'" style="margin-top:10px"></div><p style="font-size:11px;color:var(--text3);margin-top:6px" id="mrrn-'+id+'"></p></div></div>';
 }
-
-function card(label,value,unit,note){
-  return '<div class="rc"><div class="rl">'+label+'</div><div class="rv">'+value+'</div><div class="ru">'+unit+'</div>'+(note?'<div class="rn">'+note+'</div>':'')+'</div>';
+function mrToggle(id){var b=g('mrb-'+id),c=g('mrc-'+id),open=b.classList.contains('open');b.classList.toggle('open',!open);c.style.transform=open?'':'rotate(-90deg)';}
+function mrUpdName(id){var r=mrRooms.find(function(x){return x.id===id;});if(r)r.name=g('mrn-'+id).value;}
+function mrDel(id){mrRooms=mrRooms.filter(function(r){return r.id!==id;});var el=g('mr-room-'+id);if(el)el.remove();mrBuildSummary();}
+function mrSetMat(id,mat,btn){g('mrtabs-'+id).querySelectorAll('.mtab').forEach(function(t){t.classList.remove('active');});btn.classList.add('active');document.querySelectorAll('[id^="mrms-'+id+'-"]').forEach(function(x){x.classList.remove('active');});g('mrms-'+id+'-'+mat).classList.add('active');}
+function mrUpdUnit(id){var u=g('mrU-'+id).value,lbl=u==='ft'?'ft':u==='m'?'m':'cm';g('mrlL-'+id).textContent='Length ('+lbl+')';g('mrlW-'+id).textContent='Width ('+lbl+')';g('mrlH-'+id).textContent='Height ('+lbl+')';g('mrwthl-'+id).textContent='Tile to height ('+lbl+')';g('mrskdwl-'+id).textContent='Door width ('+lbl+')';}
+function mrSetTU(id,key,btn){var isCm=btn.textContent==='cm';var isFt=key==='ft'||key==='ft-cm';var pre=isFt?'ft':'wt';g('mr'+(isFt?'ftu':'wtu')+'-'+id).querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');g('mr'+pre+'ll-'+id).textContent='L ('+(isCm?'cm':'in')+')';g('mr'+pre+'wl-'+id).textContent='W ('+(isCm?'cm':'in')+')';g('mr'+pre+'l-'+id).value=isCm?(isFt?60:30):(isFt?24:12);g('mr'+pre+'w-'+id).value=isCm?(isFt?60:30):(isFt?24:12);}
+function mrSetWpU(id,u,btn){g('mrwpu-'+id).querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');if(u==='cm'){g('mrwpwl-'+id).textContent='Width (cm)';g('mrwpll-'+id).textContent='Length (m)';g('mrwprl-'+id).textContent='Repeat (cm)';g('mrwpw-'+id).value=53;g('mrwpl-'+id).value=10;}else{g('mrwpwl-'+id).textContent='Width (in)';g('mrwpll-'+id).textContent='Length (ft)';g('mrwprl-'+id).textContent='Repeat (in)';g('mrwpw-'+id).value=21;g('mrwpl-'+id).value=33;}}
+function mrSetFlU(id,u,btn){g('mrflu-'+id).querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');if(u==='cm'){g('mrflwl-'+id).textContent='Width (cm)';g('mrflll-'+id).textContent='Length (m)';g('mrflw-'+id).value=12;g('mrfll-'+id).value=1.2;}else{g('mrflwl-'+id).textContent='Width (in)';g('mrflll-'+id).textContent='Length (ft)';g('mrflw-'+id).value=5;g('mrfll-'+id).value=4;}}
+function mrSetSkU(id,u,btn){g('mrsku-'+id).querySelectorAll('.ubtn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');g('mrskbll-'+id).textContent='Board length ('+(u==='m'?'m':'ft')+')';g('mrskbl-'+id).value=u==='m'?2.4:8;}
+function mrTogCeil(id){var v=g('mrcet-'+id).value;g('mrcecov-'+id).style.display=v==='paint'?'block':'none';g('mrcetrow-'+id).style.display=v==='tile'?'block':'none';}
+function mrGetTU(id,prefix){var active=g('mr'+(prefix==='ft'?'ftu':'wtu')+'-'+id).querySelector('.ubtn.active');return active&&active.textContent==='cm'?'cm':'in';}
+function mrGetWpU(id){var a=g('mrwpu-'+id).querySelector('.ubtn.active');return a&&a.textContent==='cm/m'?'cm':'in';}
+function mrGetFlU(id){var a=g('mrflu-'+id).querySelector('.ubtn.active');return a&&(a.textContent==='cm/m')?'cm':'in';}
+function mrGetSkU(id){var a=g('mrsku-'+id).querySelector('.ubtn.active');return a&&a.textContent==='Metres'?'m':'ft';}
+function mrCard(l,v,u,n){return '<div class="rc"><div class="rl">'+l+'</div><div class="rv">'+v+'</div><div class="ru">'+u+'</div>'+(n?'<div class="rn">'+n+'</div>':'')+'</div>';}
+function mrCalcRoom(id){
+  var L=parseFloat(g('mrL-'+id).value),W=parseFloat(g('mrW-'+id).value),H=parseFloat(g('mrH-'+id).value);
+  if(!L||!W||!H){alert('Enter all dimensions for this room.');return;}
+  var u=g('mrU-'+id).value,floor=toSqFt(L*W,u),walls=toSqFt(2*(L+W)*H,u),ceil=floor;
+  var mat=g('mrtabs-'+id).querySelector('.mtab.active');
+  var matKey=mat?mat.getAttribute('onclick').match(/'([^']+)'/g)[1].replace(/'/g,''):'paint';
+  var html='',summary='',val=0,vunit='',lines=[];
+  if(matKey==='paint'){var cov=parseFloat(g('mrpc-'+id).value)||(u==='ft'?120:11);var covSF=u==='ft'?cov:cov*10.764;var coats=parseInt(g('mrpco-'+id).value)||2;var pw=parseInt(g('mrpw-'+id).value)/100;var surf=g('mrpsu-'+id).value;var area=surf==='walls'?walls:surf==='ceil'?ceil:walls+ceil;var total=+((area*coats/covSF)*(1+pw)).toFixed(1);var b4=Math.ceil(total/4);html=mrCard('Litres',total,'L','')+mrCard('4 L tins',b4,'tins','')+mrCard('Area',Math.round(area),'sq ft','');summary=total+' L ('+b4+'×4L tins)';val=total;vunit='L';}
+  else if(matKey==='floortile'){var tu=mrGetTU(id,'ft');var tl=parseFloat(g('mrftl-'+id).value)||24,tw=parseFloat(g('mrftw-'+id).value)||24,bx=parseInt(g('mrftb-'+id).value)||4,fw=parseInt(g('mrftw2-'+id).value)/100;var tsf=tileSF(tl,tw,tu);var tiles=Math.ceil(floor*(1+fw)/tsf),boxes=Math.ceil(tiles/bx);html=mrCard('Tiles',tiles,'pcs','')+mrCard('Boxes',boxes,'boxes',bx+' per box')+mrCard('Floor',Math.round(floor),'sq ft','');summary=tiles+' tiles ('+boxes+' boxes)';val=tiles;vunit='pcs';}
+  else if(matKey==='walltile'){var tu=mrGetTU(id,'wt');var tl=parseFloat(g('mrwtl-'+id).value)||12,tw=parseFloat(g('mrwtw-'+id).value)||12,bx=parseInt(g('mrwtb-'+id).value)||6,ww=parseInt(g('mrwtw2-'+id).value)/100;var wht=parseFloat(g('mrwth-'+id).value)||H;var ta=Math.max(toSqFt(2*(L+W)*Math.min(wht,H),u),0);var tsf=tileSF(tl,tw,tu);var tiles=Math.ceil(ta*(1+ww)/tsf),boxes=Math.ceil(tiles/bx);html=mrCard('Tiles',tiles,'pcs','')+mrCard('Boxes',boxes,'boxes','')+mrCard('Wall area',Math.round(ta),'sq ft','');summary=tiles+' wall tiles ('+boxes+' boxes)';val=tiles;vunit='pcs';}
+  else if(matKey==='wallpaper'){var wu=mrGetWpU(id);var rpw=parseFloat(g('mrwpw-'+id).value)||21,rpl=parseFloat(g('mrwpl-'+id).value)||33,rep=parseFloat(g('mrwpr-'+id).value)||0,ww=parseInt(g('mrwpw2-'+id).value)/100;var wft=wu==='cm'?cmToFt(rpw):inToFt(rpw);var lft=wu==='cm'?rpl*3.281:rpl;var Hft=toFt(H,u);var repFt=wu==='cm'?cmToFt(rep):inToFt(rep);var eL=repFt>0?lft-(Hft%repFt||repFt):lft;var rc=wft*eL;var rolls=Math.ceil(walls*(1+ww)/rc);html=mrCard('Rolls',rolls,'rolls','')+mrCard('Wall area',Math.round(walls),'sq ft','')+mrCard('Per roll',Math.round(rc),'sq ft','');summary=rolls+' rolls';val=rolls;vunit='rolls';}
+  else if(matKey==='flooring'){var fu=mrGetFlU(id);var fw=parseFloat(g('mrflw-'+id).value)||5,fl=parseFloat(g('mrfll-'+id).value)||4,fb=parseInt(g('mrflb-'+id).value)||8,fwaste=parseInt(g('mrflw2-'+id).value)/100;var bsf=fu==='cm'?(fw/100)*fl*10.764:(fw/12)*fl;var boards=Math.ceil(floor*(1+fwaste)/bsf),packs=Math.ceil(boards/fb);html=mrCard('Boards',boards,'pcs','')+mrCard('Packs',packs,'packs','')+mrCard('Floor',Math.round(floor),'sq ft','');summary=boards+' boards ('+packs+' packs)';val=boards;vunit='pcs';}
+  else if(matKey==='ceiling'){var ct=g('mrcet-'+id).value,cw=parseInt(g('mrcew-'+id).value)/100;if(ct==='paint'){var cov=parseFloat(g('mrcecovv-'+id).value)||(u==='ft'?120:11);var covSF=u==='ft'?cov:cov*10.764;var total=+((ceil*2/covSF)*(1+cw)).toFixed(1);html=mrCard('Litres',total,'L','')+mrCard('4L tins',Math.ceil(total/4),'tins','')+mrCard('Ceiling',Math.round(ceil),'sq ft','');summary=total+' L ceiling paint';val=total;vunit='L';}else if(ct==='gyp'){var sheets=Math.ceil(ceil*(1+cw)/32);html=mrCard('Gypsum boards',sheets,'sheets','')+mrCard('Ceiling',Math.round(ceil),'sq ft','');summary=sheets+' gypsum boards';val=sheets;vunit='sheets';}else{var sz=g('mrcets-'+id).value;var isCm=sz.indexOf('cm')>-1;var pts=sz.replace('in','').replace('cm','').split('x');var tsf=isCm?(parseInt(pts[0])/100)*(parseInt(pts[1])/100)*10.764:(parseInt(pts[0])/12)*(parseInt(pts[1])/12);var tb=parseInt(g('mrcetb-'+id).value)||10;var tiles=Math.ceil(ceil*(1+cw)/tsf),boxes=Math.ceil(tiles/tb);html=mrCard('Tiles',tiles,'pcs','')+mrCard('Boxes',boxes,'boxes','')+mrCard('Ceiling',Math.round(ceil),'sq ft','');summary=tiles+' ceiling tiles';val=tiles;vunit='pcs';}}
+  else if(matKey==='skirting'){var su=mrGetSkU(id);var doors=parseInt(g('mrskd-'+id).value)||0;var dw=parseFloat(g('mrskdw-'+id).value)||3;var dwFt=toFt(dw,u);var perimFt=toFt(2*(L+W),u);var net=Math.max(perimFt-(doors*dwFt),0);var bl=parseFloat(g('mrskbl-'+id).value)||(su==='m'?2.4:8);var blFt=su==='m'?bl*3.281:bl;var sw=parseInt(g('mrskw-'+id).value)/100;var lengths=Math.ceil(net*(1+sw)/blFt);html=mrCard('Net length',Math.round(net),'ft','')+mrCard('Boards',lengths,'lengths','')+mrCard('Board L',bl,su==='m'?'m':'ft','');summary=lengths+' skirting lengths';val=lengths;vunit='lengths';}
+  var lines2=[];if(html){var tmp=document.createElement('div');tmp.innerHTML=html;tmp.querySelectorAll('.rc').forEach(function(rc){var l=rc.querySelector('.rl').textContent,v=rc.querySelector('.rv').textContent,u2=rc.querySelector('.ru').textContent;lines2.push(l+': '+v+' '+u2);});}
+  var r=mrRooms.find(function(x){return x.id===id;});
+  if(r)r.result={mat:matKey,matLabel:MLBL[matKey],lines:lines2,summary:summary,val:val,vunit:vunit};
+  g('mrrg-'+id).innerHTML=html;g('mrr-'+id).classList.add('show');g('mrs-'+id).textContent=summary;
+  mrBuildSummary();
 }
-
-function calculate(){
-  var L=parseFloat($('length').value);
-  var W=parseFloat($('width').value);
-  var H=parseFloat($('height').value);
-  if(!L||!W||!H){alert('Please enter all room dimensions first.');return;}
-  var unit=$('unit').value;
-  var floor=toSqFt(L*W,unit);
-  var wallsGross=toSqFt(2*(L+W)*H,unit);
-  var ded=toSqFt(getOpeningsArea(),unit);
-  var walls=Math.max(wallsGross-ded,0);
-  var ceil=floor;
-  var mat=document.querySelector('.tab.active').dataset.mat;
-  var html='';var note='';var lines=[];
-
-  if(mat==='paint'){
-    var cov=parseFloat($('paint-cov').value)||120;
-    var coats=parseInt($('paint-coats').value)||2;
-    var pw=parseInt($('paint-waste').value)/100;
-    var area=$('paint-area').value==='walls'?walls:$('paint-area').value==='ceiling'?ceil:walls+ceil;
-    var netL=(area*coats)/cov;
-    var total=+(netL*(1+pw)).toFixed(1);
-    var b4=Math.ceil(total/4),b10=Math.ceil(total/10);
-    html=card('Litres needed',total,'litres','after wastage');
-    html+=card('4 L tins',b4,'tins','minimum to buy');
-    html+=card('10 L tins',b10,'tins','alternative');
-    html+=card('Area painted',Math.round(area),'sq ft','net surface area');
-    note='Includes '+$('paint-waste').value+'% wastage. Net: '+netL.toFixed(1)+' L for '+coats+' coat'+(coats>1?'s':'')+'. Openings deducted: '+Math.round(ded)+' sq ft.';
-    lines=['Litres needed: '+total+' L','4 L tins: '+b4,'10 L tins: '+b10,'Area painted: '+Math.round(area)+' sq ft'];
-  }
-  else if(mat==='floortile'){
-    var tl=parseFloat($('ft-tl').value)||24;
-    var tw=parseFloat($('ft-tw').value)||24;
-    var bx=parseInt($('ft-box').value)||4;
-    var fw=parseInt($('ft-waste').value)/100;
-    var tileSqFt=(tl/12)*(tw/12);
-    var tiles=Math.ceil(floor*(1+fw)/tileSqFt);
-    var boxes=Math.ceil(tiles/bx);
-    html=card('Tiles needed',tiles,'tiles','after wastage');
-    html+=card('Boxes needed',boxes,'boxes',bx+' tiles per box');
-    html+=card('Floor area',Math.round(floor),'sq ft','net');
-    html+=card('Wastage added',Math.round(fw*100),'%','+'+Math.round(floor*fw)+' sq ft extra');
-    note=fw*100+'% wastage. Tile: '+tl+'"×'+tw+'". Floor: '+Math.round(floor)+' sq ft.';
-    lines=['Tiles needed: '+tiles,'Boxes: '+boxes+' ('+bx+' per box)','Floor area: '+Math.round(floor)+' sq ft'];
-  }
-  else if(mat==='walltile'){
-    var tl=parseFloat($('wt-tl').value)||12;
-    var tw=parseFloat($('wt-tw').value)||12;
-    var bx=parseInt($('wt-box').value)||6;
-    var wht=parseFloat($('wt-ht').value)||H;
-    var ww=parseInt($('wt-waste').value)/100;
-    var tileArea=Math.max(toSqFt(2*(L+W)*Math.min(wht,H),unit)-ded,0);
-    var tileSqFt=(tl/12)*(tw/12);
-    var tiles=Math.ceil(tileArea*(1+ww)/tileSqFt);
-    var boxes=Math.ceil(tiles/bx);
-    html=card('Tiles needed',tiles,'tiles','after wastage');
-    html+=card('Boxes needed',boxes,'boxes',bx+' tiles per box');
-    html+=card('Wall area tiled',Math.round(tileArea),'sq ft','up to '+wht+' ft height');
-    html+=card('Wastage added',Math.round(ww*100),'%','openings deducted');
-    note=ww*100+'% wastage. Tile: '+tl+'"×'+tw+'". Tiled to '+wht+' ft. Openings deducted.';
-    lines=['Tiles needed: '+tiles,'Boxes: '+boxes+' ('+bx+' per box)','Wall area: '+Math.round(tileArea)+' sq ft'];
-  }
-  else if(mat==='wallpaper'){
-    var rpw=parseFloat($('wp-w').value)||21;
-    var rpl=parseFloat($('wp-l').value)||33;
-    var rep=parseFloat($('wp-rep').value)||0;
-    var ww=parseInt($('wp-waste').value)/100;
-    var effectiveL=rep>0?rpl-((H*12)%rep||rep):rpl;
-    var rollCov=(rpw/12)*effectiveL;
-    var rolls=Math.ceil(walls*(1+ww)/rollCov);
-    html=card('Rolls needed',rolls,'rolls','after wastage');
-    html+=card('Wall area',Math.round(walls),'sq ft','openings deducted');
-    html+=card('Roll coverage',Math.round(rollCov),'sq ft/roll','usable');
-    html+=card('Wastage added',Math.round(ww*100),'%','included');
-    note=ww*100+'% wastage. Roll: '+rpw+'"×'+rpl+' ft.'+(rep>0?' Pattern repeat: '+rep+'"':'');
-    lines=['Rolls needed: '+rolls,'Wall area: '+Math.round(walls)+' sq ft','Roll coverage: '+Math.round(rollCov)+' sq ft'];
-  }
-  else if(mat==='flooring'){
-    var bw=parseFloat($('fl-w').value)||5;
-    var bl=parseFloat($('fl-l').value)||4;
-    var bx=parseInt($('fl-box').value)||8;
-    var fw=parseInt($('fl-waste').value)/100;
-    var boardSqFt=(bw/12)*bl;
-    var boards=Math.ceil(floor*(1+fw)/boardSqFt);
-    var packs=Math.ceil(boards/bx);
-    html=card('Boards needed',boards,'boards','after wastage');
-    html+=card('Packs needed',packs,'packs',bx+' boards per pack');
-    html+=card('Floor area',Math.round(floor),'sq ft','net');
-    html+=card('Wastage added',Math.round(fw*100),'%','+'+Math.round(floor*fw)+' sq ft');
-    note=fw*100+'% wastage. Board: '+bw+'"×'+bl+' ft.';
-    lines=['Boards needed: '+boards,'Packs: '+packs+' ('+bx+' per pack)','Floor area: '+Math.round(floor)+' sq ft'];
-  }
-  else if(mat==='ceiling'){
-    var ct=$('ce-type').value;
-    var cw=parseInt($('ce-waste').value)/100;
-    if(ct==='paint'){
-      var cov=parseFloat($('ce-cov').value)||120;
-      var netL=(ceil*2)/cov;
-      var total=+(netL*(1+cw)).toFixed(1);
-      html=card('Litres needed',total,'litres','after wastage');
-      html+=card('4 L tins',Math.ceil(total/4),'tins','minimum');
-      html+=card('Ceiling area',Math.round(ceil),'sq ft','');
-      html+=card('Wastage added',Math.round(cw*100),'%','');
-      note=cw*100+'% wastage. Net: '+netL.toFixed(1)+' L for 2 coats.';
-      lines=['Litres: '+total+' L','4 L tins: '+Math.ceil(total/4),'Ceiling: '+Math.round(ceil)+' sq ft'];
-    } else if(ct==='gyp'){
-      var sheets=Math.ceil(ceil*(1+cw)/32);
-      html=card('Gypsum boards',sheets,'sheets','4×8 ft each');
-      html+=card('Ceiling area',Math.round(ceil),'sq ft','');
-      html+=card('Wastage added',Math.round(cw*100),'%','');
-      note=cw*100+'% wastage. Standard 4×8 ft gypsum boards.';
-      lines=['Gypsum boards: '+sheets,'Ceiling: '+Math.round(ceil)+' sq ft'];
-    } else {
-      var sz=$('ce-tile-sz').value.split('x');
-      var tileSqFt=(parseInt(sz[0])/12)*(parseInt(sz[1])/12);
-      var tbx=parseInt($('ce-tile-box').value)||10;
-      var tiles=Math.ceil(ceil*(1+cw)/tileSqFt);
-      var boxes=Math.ceil(tiles/tbx);
-      html=card('Tiles needed',tiles,'tiles','after wastage');
-      html+=card('Boxes needed',boxes,'boxes',tbx+' per box');
-      html+=card('Ceiling area',Math.round(ceil),'sq ft','');
-      note=cw*100+'% wastage. Tile: '+$('ce-tile-sz').value+' in.';
-      lines=['Tiles: '+tiles,'Boxes: '+boxes,'Ceiling: '+Math.round(ceil)+' sq ft'];
-    }
-  }
-
-  var labels={paint:'Paint estimate',floortile:'Floor tile estimate',walltile:'Wall tile estimate',wallpaper:'Wallpaper estimate',flooring:'Wood / laminate estimate',ceiling:'Ceiling estimate'};
-  $('res-title').textContent=labels[mat];
-  $('result-grid').innerHTML=html;
-  $('waste-info').textContent=note;
-  lastResults={title:labels[mat],lines:lines,note:note};
-  var res=$('results');
-  res.classList.add('show');
-  res.scrollIntoView({behavior:'smooth',block:'nearest'});
+function mrCalcAll(){var skip=0;mrRooms.forEach(function(r){var L=parseFloat(g('mrL-'+r.id).value),W=parseFloat(g('mrW-'+r.id).value),H=parseFloat(g('mrH-'+r.id).value);if(L&&W&&H)mrCalcRoom(r.id);else skip++;});if(skip)alert(skip+' room(s) skipped — missing dimensions.');}
+function mrBuildSummary(){
+  var done=mrRooms.filter(function(r){return r.result;});
+  var sum=g('mr-summary');if(!done.length){sum.classList.remove('show');return;}sum.classList.add('show');
+  var totals={};done.forEach(function(r){var k=r.result.mat;if(!totals[k]){totals[k]={label:r.result.matLabel,val:0,unit:r.result.vunit};}totals[k].val+=r.result.val;});
+  g('mr-sum-grid').innerHTML=Object.keys(totals).map(function(k){var t=totals[k];var v=Number.isInteger(t.val)?t.val:+t.val.toFixed(1);return '<div class="scard"><div class="sl">'+t.label+'</div><div class="sv">'+v+'</div><div class="su">'+t.unit+' total</div></div>';}).join('');
+  g('mr-bdown').innerHTML='<div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Room breakdown</div>'+done.map(function(r){return '<div class="brow"><div><div class="brow-l">'+r.name+'</div><div class="brow-s">'+r.result.matLabel+'</div></div><div class="brow-r">'+r.result.summary+'</div></div>';}).join('');
 }
+function mrBuildText(){var done=mrRooms.filter(function(r){return r.result;});if(!done.length)return '';var t=['Measuro — Whole house material estimate',''];done.forEach(function(r){t.push(r.name+' — '+r.result.matLabel);r.result.lines.forEach(function(l){t.push('  '+l);});t.push('');});t.push('Calculate yours free: bit.ly/measuro');return t.join('\n');}
+function mrCopyAll(){var text=mrBuildText();if(!text){alert('Calculate at least one room first.');return;}navigator.clipboard.writeText(text).then(function(){var b=g('mr-copy-btn');b.classList.add('cp');b.textContent='✓ Copied!';setTimeout(function(){b.classList.remove('cp');b.innerHTML='&#x2398; Copy';},2200);});}
+function mrShareAll(){var text=mrBuildText();if(!text){alert('Calculate at least one room first.');return;}window.open('https://wa.me/?text='+encodeURIComponent(text.replace(/^Measuro/,'*Measuro*')),'_blank');}
 
-function copyResults(){
-  if(!lastResults.lines.length){alert('Please calculate first.');return;}
-  var text=lastResults.title+'\n'+'—'.repeat(30)+'\n'+lastResults.lines.join('\n')+'\n\nNote: '+lastResults.note+'\n\nCalculated with Material Calculator';
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(function(){
-      var btn=$('copy-btn');
-      btn.classList.add('copied');
-      btn.textContent='✓ Copied!';
-      setTimeout(function(){btn.classList.remove('copied');btn.innerHTML='&#x2398; Copy';},2200);
-    });
-  } else {
-    var ta=document.createElement('textarea');
-    ta.value=text;ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);ta.select();
-    document.execCommand('copy');document.body.removeChild(ta);
-    var btn=$('copy-btn');btn.textContent='✓ Copied!';
-    setTimeout(function(){btn.innerHTML='&#x2398; Copy';},2200);
-  }
-}
-
-function shareWA(){
-  if(!lastResults.lines.length){alert('Please calculate first.');return;}
-  var text='*'+lastResults.title+'*\n'+lastResults.lines.join('\n')+'\n\n_'+lastResults.note+'_\n\nCalculated with Material Calculator';
-  window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
-}
-
-updateAreas();
+mrAddRoom();mrAddRoom();
 </script>
 </body>
 </html>
