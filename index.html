@@ -251,7 +251,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
   </div>
 
-  <div class="footer">Measuro · Free material calculator · bit.ly/measuro<br>Estimates only — verify before purchasing.</div>
+  <div class="footer">Measuro · Free material calculator · measurocalc.com<br>Estimates only — verify before purchasing.</div>
 </div>
 </div>
 
@@ -271,7 +271,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <button class="action-btn wa" onclick="mrShareAll()">&#x2714; WhatsApp</button>
     </div>
   </div>
-  <div class="footer">Measuro · Free material calculator · bit.ly/measuro<br>Estimates only — verify before purchasing.</div>
+  <div class="footer">Measuro · Free material calculator · measurocalc.com<br>Estimates only — verify before purchasing.</div>
 </div>
 </div>
 
@@ -338,9 +338,9 @@ function sCalc(){
   g('s-res-title').textContent=labels[mat];g('s-res-grid').innerHTML=html;g('s-res-note').textContent=note;
   sLastRes={title:labels[mat],lines:lines,note:note};g('s-results').classList.add('show');g('s-results').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function sBuildText(){return sLastRes.title+'\n'+'—'.repeat(28)+'\n'+sLastRes.lines.join('\n')+'\n\nNote: '+sLastRes.note+'\n\nMeasuro — bit.ly/measuro';}
+function sBuildText(){return sLastRes.title+'\n'+'—'.repeat(28)+'\n'+sLastRes.lines.join('\n')+'\n\nNote: '+sLastRes.note+'\n\nMeasuro — measurocalc.com';}
 function sCopy(){if(!sLastRes.lines.length){alert('Calculate first.');return;}navigator.clipboard.writeText(sBuildText()).then(function(){var b=g('s-copy-btn');b.classList.add('cp');b.textContent='✓ Copied!';setTimeout(function(){b.classList.remove('cp');b.innerHTML='&#x2398; Copy';},2200);});}
-function sWA(){if(!sLastRes.lines.length){alert('Calculate first.');return;}window.open('https://wa.me/?text='+encodeURIComponent('*'+sLastRes.title+'*\n'+sLastRes.lines.join('\n')+'\n\n_'+sLastRes.note+'_\n\nMeasuro — bit.ly/measuro'),'_blank');}
+function sWA(){if(!sLastRes.lines.length){alert('Calculate first.');return;}window.open('https://wa.me/?text='+encodeURIComponent('*'+sLastRes.title+'*\n'+sLastRes.lines.join('\n')+'\n\n_'+sLastRes.note+'_\n\nMeasuro — measurocalc.com'),'_blank');}
 
 /* ---- MULTI ROOM ---- */
 function mrAddRoom(){mrRC++;var id=mrRC;var name=NAMES[(id-1)%NAMES.length];mrRooms.push({id:id,name:name,result:null});var d=document.createElement('div');d.className='room-card';d.id='mr-room-'+id;d.innerHTML=mrRoomHTML(id,name);g('mr-rooms').appendChild(d);}
@@ -399,7 +399,7 @@ function mrBuildSummary(){
   g('mr-sum-grid').innerHTML=Object.keys(totals).map(function(k){var t=totals[k];var v=Number.isInteger(t.val)?t.val:+t.val.toFixed(1);return '<div class="scard"><div class="sl">'+t.label+'</div><div class="sv">'+v+'</div><div class="su">'+t.unit+' total</div></div>';}).join('');
   g('mr-bdown').innerHTML='<div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Room breakdown</div>'+done.map(function(r){return '<div class="brow"><div><div class="brow-l">'+r.name+'</div><div class="brow-s">'+r.result.matLabel+'</div></div><div class="brow-r">'+r.result.summary+'</div></div>';}).join('');
 }
-function mrBuildText(){var done=mrRooms.filter(function(r){return r.result;});if(!done.length)return '';var t=['Measuro — Whole house material estimate',''];done.forEach(function(r){t.push(r.name+' — '+r.result.matLabel);r.result.lines.forEach(function(l){t.push('  '+l);});t.push('');});t.push('Calculate yours free: bit.ly/measuro');return t.join('\n');}
+function mrBuildText(){var done=mrRooms.filter(function(r){return r.result;});if(!done.length)return '';var t=['Measuro — Whole house material estimate',''];done.forEach(function(r){t.push(r.name+' — '+r.result.matLabel);r.result.lines.forEach(function(l){t.push('  '+l);});t.push('');});t.push('Calculate yours free: measurocalc.com');return t.join('\n');}
 function mrCopyAll(){var text=mrBuildText();if(!text){alert('Calculate at least one room first.');return;}navigator.clipboard.writeText(text).then(function(){var b=g('mr-copy-btn');b.classList.add('cp');b.textContent='✓ Copied!';setTimeout(function(){b.classList.remove('cp');b.innerHTML='&#x2398; Copy';},2200);});}
 function mrShareAll(){var text=mrBuildText();if(!text){alert('Calculate at least one room first.');return;}window.open('https://wa.me/?text='+encodeURIComponent(text.replace(/^Measuro/,'*Measuro*')),'_blank');}
 
